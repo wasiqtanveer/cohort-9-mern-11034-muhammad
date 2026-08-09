@@ -4,13 +4,13 @@ React frontend for the Notes App, built with Vite.
 
 ## Setup
 
-```
+```bash
 npm install
 ```
 
 ## Development
 
-```
+```bash
 npm run dev
 ```
 
@@ -18,13 +18,13 @@ Runs the app locally with hot reload (default: http://localhost:5173).
 
 ## Build
 
-```
+```bash
 npm run build
 ```
 
 ## Lint
 
-```
+```bash
 npm run lint
 ```
 
