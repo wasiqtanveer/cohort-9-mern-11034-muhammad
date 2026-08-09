@@ -2,9 +2,9 @@ import {Link, Navigate} from 'react-router-dom';
 import { useState} from 'react'
 
 const dummyNotes = [
-  {id:1, title:'Grocey List', content:'milk, eggs, bread'},
-  {id:2, title:'Meeting Notes', content:'Discuss App Scalibility'},
-  {id:3, title:'Ideas', content:'Build a Notes aop'}
+  {id:1, title:'Grocery List', content:'milk, eggs, bread'},
+  {id:2, title:'Meeting Notes', content:'Discuss App Scalability'},
+  {id:3, title:'Ideas', content:'Build a Notes app'}
 ]
 
 function Dashboard(){

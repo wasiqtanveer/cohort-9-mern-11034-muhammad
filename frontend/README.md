@@ -1,16 +1,40 @@
-# React + Vite
+# Notes App — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React frontend for the Notes App, built with Vite.
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```
+npm install
+```
 
-## React Compiler
+## Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+npm run dev
+```
 
-## Expanding the ESLint configuration
+Runs the app locally with hot reload (default: http://localhost:5173).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Build
+
+```
+npm run build
+```
+
+## Lint
+
+```
+npm run lint
+```
+
+## Routes
+
+- `/login` — login form
+- `/signup` — signup form
+- `/dashboard` — list of notes
+
+## Current status
+
+- Auth forms are not yet connected to a backend — form state works, but nothing is submitted anywhere yet.
+- Dashboard renders dummy/hardcoded notes data, not real data from an API.
