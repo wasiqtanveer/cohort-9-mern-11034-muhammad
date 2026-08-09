@@ -1,4 +1,4 @@
-import {Link, Navigate} from 'react-router-dom';
+import {Link, } from 'react-router-dom';
 import {useState} from 'react';
 
 function Login(){
@@ -20,7 +20,7 @@ function Login(){
         type = 'email'
         value={email}
         onChange={(e)=> setEmail(e.target.value)}
-        placeholders='Email'
+        placeholder='Email'
         />
 
         <label htmlFor="password">Password</label>

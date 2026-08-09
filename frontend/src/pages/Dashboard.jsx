@@ -1,4 +1,4 @@
-import {Link, Navigate} from 'react-router-dom';
+import {Link,} from 'react-router-dom';
 import { useState} from 'react'
 
 const dummyNotes = [
@@ -8,7 +8,8 @@ const dummyNotes = [
 ]
 
 function Dashboard(){
-  const[notes, setNotes] = useState(dummyNotes)
+  //will add setNotes later when we implement add note functionality
+  const[notes] = useState(dummyNotes)
 
   return (
   <div>

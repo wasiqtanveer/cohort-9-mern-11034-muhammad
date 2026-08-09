@@ -1,4 +1,4 @@
-import {Link, Navigate} from 'react-router-dom';
+import {Link,} from 'react-router-dom';
 import {useState} from 'react';
 
 function Signup(){
@@ -18,7 +18,7 @@ function Signup(){
             <label htmlFor="name">Name</label>
             <input
             id="name"
-            type='name'
+            type='text'
             value={name}
 
             onChange={(e)=>setName(e.target.value)}
@@ -30,7 +30,7 @@ function Signup(){
         type = 'email'
         value={email}
         onChange={(e)=> setEmail(e.target.value)}
-        placeholders='Email'
+        placeholder='Email'
         />
 
         <label htmlFor="password">Password</label>
