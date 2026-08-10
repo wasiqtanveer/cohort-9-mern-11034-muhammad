@@ -1,13 +1,20 @@
 import {Link,} from 'react-router-dom';
 import {useState} from 'react';
+import {useAuth} from '../context/Auth-context.js';
+import {useNavigate} from 'react-router-dom';
 
 function Signup(){
     const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  const {signup} = useAuth()
+  const navigate = useNavigate()
+
   function handleSubmit(e){
     e.preventDefault()
+    signup(name,email,password)
+    navigate('/dashboard')
   }
 
   return(
