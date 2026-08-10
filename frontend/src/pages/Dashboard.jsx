@@ -1,27 +1,23 @@
 import {Link,} from 'react-router-dom';
-import { useState} from 'react'
 
-const dummyNotes = [
-  {id:1, title:'Grocery List', content:'milk, eggs, bread'},
-  {id:2, title:'Meeting Notes', content:'Discuss App Scalability'},
-  {id:3, title:'Ideas', content:'Build a Notes app'}
-]
 
-function Dashboard(){
-  //will add setNotes later when we implement add note functionality
-  const[notes] = useState(dummyNotes)
+function Dashboard({notes, setNotes}){ //recieving as props for app.jsx 
 
   return (
   <div>
     <h1>Dashboard</h1>
+    <Link to='/editor'>+ New Note</Link>
 
     <ul>
       {notes.map((note)=>(
         <li key={note.id}>
           
           <h3>{note.title}</h3>
-          <p>{note.content}</p>
+          <div dangerouslySetInnerHTML={{__html: note.content}} />
 
+          <button onClick={()=> setNotes(notes.filter((n)=> n.id!== note.id))} >Delete</button>
+
+          <Link to={`/editor/${note.id}`}>Edit</Link>
         </li>
       ))}
     </ul>
