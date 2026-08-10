@@ -1,4 +1,5 @@
 import {Link,} from 'react-router-dom';
+import DOMPurify from 'dompurify';
 
 
 function Dashboard({notes, setNotes}){ //recieving as props for app.jsx 
@@ -13,7 +14,7 @@ function Dashboard({notes, setNotes}){ //recieving as props for app.jsx
         <li key={note.id}>
           
           <h3>{note.title}</h3>
-          <div dangerouslySetInnerHTML={{__html: note.content}} />
+          <div dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(note.content)}} />
 
           <button onClick={()=> setNotes(notes.filter((n)=> n.id!== note.id))} >Delete</button>
 

@@ -8,6 +8,7 @@ function NoteEditor({ notes,setNotes }){
     const{id} = useParams()
     const navigate = useNavigate()
 
+    const isEditRoute = Boolean(id)
     const existingNote = notes.find((note) =>note.id === Number(id))
 
     const[title, setTitle] = useState(existingNote? existingNote.title:'')
@@ -31,6 +32,10 @@ function NoteEditor({ notes,setNotes }){
         }
         navigate('/dashboard')
     }
+
+    if (isEditRoute && !existingNote) {
+  return <p>Note not found</p>
+}
 
     return(
         <div>
