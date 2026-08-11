@@ -52,9 +52,10 @@ function Dashboard({notes, setNotes}){ //recieving as props for app.jsx
             <div className="text-gray-600 text-sm mb-4 line-clamp-3" dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(note.content)}} />
 
               <div className="flex gap-3 text-sm">
-                <button onClick={()=> setNotes(notes.filter((n)=> n.id!== note.id))} className="text-red-600 hover:underline"><Trash2 size={16}/></button>
+               <button aria-label="Delete note" onClick={()=> setNotes(notes.filter((n)=> n.id!== note.id))} className="text-red-600 hover:underline"><Trash2 size={16}/></button>
 
-                <Link to={`/editor/${note.id}`} className="text-blue-600 hover:underline"><Pencil size={16}/></Link>
+              <Link aria-label="Edit note" to={`/editor/${note.id}`} className="text-blue-600 hover:underline"><Pencil size={16}/></Link>
+
               </div>
           </div>
         ))}
