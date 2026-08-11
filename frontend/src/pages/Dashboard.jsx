@@ -11,6 +11,7 @@ function Dashboard({notes, setNotes}){ //recieving as props for app.jsx
   return (
   <div>
     <button onClick={logout}>Log Out</button>
+    <Link to='/profile'>Profile</Link>
 
     <h1>Dashboard</h1>
     <Link to='/editor'>+ New Note</Link>

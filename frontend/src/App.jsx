@@ -5,6 +5,7 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import NoteEditor from './pages/NoteEditor';
 import ProtectedRoute from './components/ProtectedRoute';
+import Profile from './pages/Profile';
 
 
 const dummyNotes = [
@@ -35,7 +36,15 @@ function App()
       <Route path='/editor' element={<ProtectedRoute>
         <NoteEditor notes={notes} setNotes={setNotes}/>
       </ProtectedRoute>}/>
+
+      <Route path='/profile' element={<ProtectedRoute>
+        <Profile/>
+      </ProtectedRoute>}>
+
+      </Route>
     </Routes>
+
+    
   )
 }
 
