@@ -38,29 +38,49 @@ function NoteEditor({ notes,setNotes }){
 }
 
     return(
-        <div>
-            <h1>
-                {existingNote ? 'Edit Note' : 'New Note'}
-            </h1>
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-2xl mx-auto px-8 py-8">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 
-            <form onSubmit={handleSave}>
-                <label htmlFor="title">Title</label>
-                <input
-                id='title'
-                type='text'
-                value={title}
-                onChange={(e)=> setTitle(e.target.value)}
-                />
 
-                <label htmlFor="content">Content</label>
-                <ReactQuill
-                theme='snow'
-                value={content}
-                onChange={setContent}/>
+               
+                    <h1 className="text-2xl font-bold text-gray-900 mb-6">
+                        {existingNote ? 'Edit Note' : 'New Note'}
+                    </h1>
 
-                <button type='submit'> Save </button>
-                <button type='button' onClick={()=>navigate('/dashboard')}>Cancel</button>
-            </form>
+                    <form onSubmit={handleSave}>
+                        <div className="mb-4">
+                        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                        <input
+                        id='title'
+                        type='text'
+                        value={title}
+                        onChange={(e)=> setTitle(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        </div>
+
+
+                        <div className="mb-4">
+                        <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                        <ReactQuill
+                        theme='snow'
+                        value={content}
+                        onChange={setContent}/>
+                        </div>
+
+
+                        <div className="flex gap-3">
+                        <button type='submit' className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                            Save
+                        </button>
+                        <button type='button' onClick={()=>navigate('/dashboard')} className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200">
+                            Cancel
+                        </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     )
 }

@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import NoteEditor from './pages/NoteEditor';
+import ProtectedRoute from './components/ProtectedRoute';
+import Profile from './pages/Profile';
 
 
 const dummyNotes = [
@@ -22,10 +24,27 @@ function App()
       <Route path='/' element={<Navigate to='/login' replace />}/>
       <Route path='/login' element={<Login />}/>
       <Route path='/signup' element={<Signup />}/>
-      <Route path='/dashboard' element={<Dashboard notes={notes} setNotes={setNotes}/>}/>
-      <Route path='/editor/:id' element={<NoteEditor notes={notes} setNotes={setNotes}/>}/>
-      <Route path='/editor' element={<NoteEditor notes={notes} setNotes={setNotes}/>}/>
+
+      <Route path='/dashboard' element={<ProtectedRoute>
+        <Dashboard notes={notes} setNotes={setNotes}/>
+      </ProtectedRoute>}/>
+
+      <Route path='/editor/:id' element={<ProtectedRoute>
+        <NoteEditor notes={notes} setNotes={setNotes}/>
+      </ProtectedRoute>}/>
+
+      <Route path='/editor' element={<ProtectedRoute>
+        <NoteEditor notes={notes} setNotes={setNotes}/>
+      </ProtectedRoute>}/>
+
+      <Route path='/profile' element={<ProtectedRoute>
+        <Profile/>
+      </ProtectedRoute>}>
+
+      </Route>
     </Routes>
+
+    
   )
 }
 
