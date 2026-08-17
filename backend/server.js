@@ -1,12 +1,19 @@
 require("dotenv").config(); //reads .env file and inject every process.ev
 const express = require("express");
 const pinoHttp = require('pino-http');
+const pool = require("./config/db")
 
 const app = express();
 const PORT = process.env.PORT || 5000; // here || means if process.env.PORT is not defined, then use 5000 as the default port
 
 
 app.use(pinoHttp());
+
+app.get('/api/db-test',async(req,res) =>
+{
+    const result = await pool.query('SELECT NOW()')
+    res.json(result.rows[0])
+})
 
 app.get('/', (req,res) =>{
     res.send('API is running')
@@ -15,4 +22,4 @@ app.get('/', (req,res) =>{
 app.listen(PORT,()=>
 {
     console.log(`server is running on port ${PORT}`)
-})``
+})
