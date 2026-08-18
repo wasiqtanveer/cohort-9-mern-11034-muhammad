@@ -5,10 +5,14 @@ const pool = require("./config/db")
 const {notFound, errorHandler} = require("./middleware/errorHandler")
 
 const app = express();
+app.disable("x-powered-by");//dont tell attackers we are running express
 const PORT = process.env.PORT || 5000; // here || means if process.env.PORT is not defined, then use 5000 as the default port
 
 
-app.use(pinoHttp());
+//pino logs request headers by default, so hide the ones that carry tokens
+app.use(pinoHttp({
+    redact: ["req.headers.authorization", "req.headers.cookie"],
+}));
 app.use(express.json());//parses jason requestion body into req.body
 
 app.get('/api/db-test',async(req,res) =>

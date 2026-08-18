@@ -8,8 +8,13 @@ const pool = new Pool(
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
         database: process.env.DB_NAME,
-        
+        connectionTimeoutMillis: 5000, //dont wait forever if postgres is down, give up after 5 sec
     }
 )
+
+//pool is an event emitter, if an idle client errors and nobody is listening node kills the whole process
+pool.on("error", (err) => {
+    console.error("Unexpected error on idle postgres client", err);
+})
 
 module.exports = pool

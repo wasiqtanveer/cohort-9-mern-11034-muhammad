@@ -15,10 +15,10 @@ function notFound(req,res,next)
 
         res.status(status).json(
             {
-                message: err.message || "Internal sever Error",
+                //500s can carry database details like table names so send something generic instead
+                message: status >= 500 ? "Internal Server Error" : err.message,
 
-
-                stack: process.env.NODE_ENV === "production" ? undefined : err.stack,//this line basically say if we ar ein production dont shpw error details if we are in development thenn show
+                stack: process.env.NODE_ENV === "development" ? err.stack : undefined,//only show the stack in development, anything else stays hidden
             }
         )
     }
