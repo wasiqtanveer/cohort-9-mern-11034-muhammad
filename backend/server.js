@@ -3,6 +3,9 @@ const express = require("express");
 const pinoHttp = require('pino-http');
 const pool = require("./config/db")
 const {notFound, errorHandler} = require("./middleware/errorHandler")
+const authRoutes = require("./routes/authRoutes")
+const {protect} = require("./middleware/authMiddleware")
+
 
 const app = express();
 app.disable("x-powered-by");//dont tell attackers we are running express
@@ -25,6 +28,13 @@ app.get('/', (req,res) =>{
     res.send('API is running')
 })
 
+
+app.get("/api/auth/me", protect, (req,res) => {
+    res.json({user: req.user})
+})
+
+
+app.use("/api/auth", authRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
