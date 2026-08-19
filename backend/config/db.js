@@ -7,7 +7,7 @@ const pool = new Pool(
         password: process.env.DB_PASSWORD,
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
-        database: process.env.DB_NAME,
+        database: process.env.NODE_ENV === "test" ? process.env.DB_NAME_TEST : process.env.DB_NAME,
         connectionTimeoutMillis: 5000, //dont wait forever if postgres is down, give up after 5 sec
     }
 )
