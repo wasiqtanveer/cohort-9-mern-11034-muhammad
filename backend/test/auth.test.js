@@ -11,13 +11,14 @@ describe("Auth API", function()
 {
     beforeEach(async function() //wipe userr table before each test so test dont depend on each other
     {
-        await pool.query("TRUNCATE users RESTART IDENTITY");
+                await pool.query("TRUNCATE users RESTART IDENTITY CASCADE");
+
     });
 
     //close the db connection after all the tests
     after(async function()
     {
-        await pool.end;
+        await pool.end();
     })
 
     describe("POST /api/auth/register", function()
@@ -109,6 +110,8 @@ describe("Auth API", function()
             //both must look identical so nobody can find out which emails are registered
             expect(noUser.status).to.equal(wrongPass.status);
             expect(noUser.body.message).to.equal(wrongPass.body.message);
+            //check the real value too, otherwise two undefineds would pass this test
+            expect(noUser.body.message).to.equal("Invalid email or password");
         });
 
 

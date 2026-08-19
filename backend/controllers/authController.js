@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 
 async function register(req,res)
 {
-    const{name,email,password} = req.body
+    const{name,password} = req.body
+    //lowercase the email so User@test.com and user@test.com cant become two accounts
+    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : req.body.email
 
     if(!name || !email || !password)
     {
@@ -45,7 +47,8 @@ async function register(req,res)
 
 async function login(req,res)
 {
-    const email = req.body.email;
+    //same lowercasing as register or the lookup wont match what we stored
+    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : req.body.email;
     const password = req.body.password;
 
     

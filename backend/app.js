@@ -4,7 +4,11 @@ const pinoHttp = require('pino-http');
 const pool = require("./config/db")
 const {notFound, errorHandler} = require("./middleware/errorHandler")
 const authRoutes = require("./routes/authRoutes")
-const {protect} = require("./middleware/authMiddleware")
+
+//crash on startup with a clear message instead of 500ing on every login
+if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not set in .env");
+}
 
 const app = express();
 app.disable("x-powered-by");//dont tell attackers we are running express
@@ -25,10 +29,6 @@ app.get('/api/db-test',async(req,res) =>
 
 app.get('/', (req,res) =>{
     res.send('API is running')
-})
-
-app.get("/api/auth/me", protect, (req,res) => {
-    res.json({user: req.user})
 })
 
 app.use("/api/auth", authRoutes);
