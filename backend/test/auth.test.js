@@ -16,10 +16,6 @@ describe("Auth API", function()
     });
 
     //close the db connection after all the tests
-    after(async function()
-    {
-        await pool.end();
-    })
 
     describe("POST /api/auth/register", function()
     {
