@@ -84,6 +84,25 @@ describe("Notes API", function()
 
             expect(res.status).to.equal(401);
         });
+
+        it("rejects a title that is not a string with 400", async function () {
+            const res = await request(app)
+                .post("/api/notes")
+                .set("Authorization", `Bearer ${tokenA}`)
+                .send({title: 12345, content: "<p>x</p>"});
+
+            //without validation title.trim() would throw and give a 500
+            expect(res.status).to.equal(400);
+        });
+
+        it("rejects a title longer than 200 characters with 400", async function () {
+            const res = await request(app)
+                .post("/api/notes")
+                .set("Authorization", `Bearer ${tokenA}`)
+                .send({title: "a".repeat(201), content: "<p>x</p>"});
+
+            expect(res.status).to.equal(400);
+        });
     });
 
 
@@ -134,6 +153,15 @@ describe("Notes API", function()
 
             //404 not 403, so B cant even learn that the note exists
             expect(res.status).to.equal(404);
+        });
+
+        it("rejects a non numeric id with 400", async function () {
+            const res = await request(app)
+                .get("/api/notes/abc")
+                .set("Authorization", `Bearer ${tokenA}`);
+
+            //postgres would throw a cast error and give a 500 without this check
+            expect(res.status).to.equal(400);
         });
     });
 

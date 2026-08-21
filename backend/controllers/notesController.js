@@ -2,6 +2,38 @@ const pool = require("../config/db")
 const sanitizeHtml = require("sanitize-html")
 
 
+//postgres throws a cast error if the id isnt a number, so catch it here as a 400
+function validateNoteId(id){
+    if(!/^[1-9]\d*$/.test(id)){
+        const err = new Error("Invalid note id");
+        err.status = 400;
+        throw err;
+    }
+}
+
+//title.trim() blows up if someone sends a number instead of a string
+function validateNoteInput(title, content){
+    if(typeof title !== "string" || !title.trim()){
+        const err = new Error("Title is required");
+        err.status = 400;
+        throw err;
+    }
+
+    //the column is VARCHAR(200) so anything longer would be a db error
+    if(title.trim().length > 200){
+        const err = new Error("Title must not exceed 200 characters");
+        err.status = 400;
+        throw err;
+    }
+
+    if(content !== undefined && typeof content !== "string"){
+        const err = new Error("Content must be a string");
+        err.status = 400;
+        throw err;
+    }
+}
+
+
 //fetch all the notes that belong to the current logged in user
 async function getNotes(req,res) {
     const result = await pool.query(
@@ -18,6 +50,8 @@ async function getNotes(req,res) {
 
 //get one note IFF it belong to the logged in user
 async function getNote(req,res) {
+    validateNoteId(req.params.id);
+
     const result = await pool.query(
         `SELECT id, title, content, created_at, updated_at
         FROM notes
@@ -48,13 +82,9 @@ async function createNote(req,res)
 {
     const{title,content} = req.body;
 
-    if(!title || !title.trim()){
-        const err = new Error("Title is required");
-        err.status = 400;
-        throw err;
-    }
+    validateNoteInput(title, content);
 
-    // even if the forntend is sanitized we can still have issue 
+    // even if the forntend is sanitized we can still have issue
     const cleanContent = sanitizeHtml(content || "", sanitizeOptions);
 
     const result = await pool.query(
@@ -72,11 +102,8 @@ async function createNote(req,res)
 async function updateNote(req,res){
     const{title, content} = req.body;
 
-    if(!title || !title.trim()){
-        const err = new Error("Title is required");
-        err.status = 400;
-        throw err;
-    }
+    validateNoteId(req.params.id);
+    validateNoteInput(title, content);
 
      const cleanContent = sanitizeHtml(content || "", sanitizeOptions);
 
@@ -102,6 +129,8 @@ async function updateNote(req,res){
 }
 
 async function deleteNote(req, res) {
+    validateNoteId(req.params.id);
+
     const result = await pool.query(
         `DELETE FROM notes
          WHERE id = $1 AND user_id = $2

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users(
 -- create notes table
 CREATE TABLE IF NOT EXISTS notes(
     id              SERIAL PRIMARY KEY,   
-    user_id         INTEGER NOT NULL REFRENCES users(id) ON DELETE CASCADE,
+    user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title           VARCHAR(200) NOT NULL,
     content         TEXT NOT NULL DEFAULT '',
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
