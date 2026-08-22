@@ -1,4 +1,5 @@
 import {Link,} from 'react-router-dom';
+import {useState} from 'react';
 import DOMPurify from 'dompurify';
 import {useAuth} from '../context/Auth-context.js';
 import {Pencil, Trash2} from 'lucide-react';
@@ -20,14 +21,21 @@ function getCardColor(id)
 }
 
 
-function Dashboard({notes, refreshNotes}){
+function Dashboard({notes, refreshNotes, notesError}){
 
   const {logout} = useAuth()
+  const [error, setError] = useState('')
 
   async function handleDelete(id)
   {
-    await api.delete(`/notes/${id}`);
-    refreshNotes();
+    setError('');
+    try {
+      await api.delete(`/notes/${id}`);
+      refreshNotes();
+    } catch (err) {
+      //otherwise the delete button just silently does nothing
+      setError(err.response?.data?.message || 'Could not delete that note, try again');
+    }
   }
 
   return (
@@ -48,6 +56,11 @@ function Dashboard({notes, refreshNotes}){
         </h2>
         <Link to='/editor' className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">+ New Note</Link>
       </div>
+
+      {/* one banner for both the failed list fetch and a failed delete */}
+      {(error || notesError) && (
+        <p className='text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4'>{error || notesError}</p>
+      )}
 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

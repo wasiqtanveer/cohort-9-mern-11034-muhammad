@@ -12,12 +12,22 @@ import api from './api/client.js';
 function App()
 {
   const [notes, setNotes] = useState([])
+  const [notesError, setNotesError] = useState('')
   const {user} = useAuth()
 
   //useCallback so this function has a stable identity, safe to put in a dependency array
   const refreshNotes = useCallback(() => {
     if (!user) return;
-    api.get("/notes").then((res) => setNotes(res.data.notes));
+    api.get("/notes")
+      .then((res) => {
+        setNotes(res.data.notes);
+        setNotesError('');
+      })
+      .catch(() => {
+        //without this a failed fetch just looks like you have no notes
+        setNotes([]);
+        setNotesError('Could not load your notes. Check your connection and try again.');
+      });
   }, [user]);
 
   //fetch the list whenever we go from logged out to logged in
@@ -32,7 +42,7 @@ function App()
       <Route path='/signup' element={<Signup />}/>
 
       <Route path='/dashboard' element={<ProtectedRoute>
-        <Dashboard notes={notes} refreshNotes={refreshNotes}/>
+        <Dashboard notes={notes} refreshNotes={refreshNotes} notesError={notesError}/>
       </ProtectedRoute>}/>
 
       <Route path='/editor/:id' element={<ProtectedRoute>

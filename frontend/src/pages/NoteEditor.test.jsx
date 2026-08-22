@@ -50,9 +50,20 @@ test('shows "Edit Note" and pre-fills the title when editing an existing note', 
 
 
 test('shows "Note not found" for an id the backend rejects', async () => {
-  api.get.mockRejectedValue(new Error('404'));
+  //has to look like a real axios 404, a plain error is treated as a connection problem now
+  api.get.mockRejectedValue({response: {status: 404}});
 
   renderEditor('/editor/999')
 
   await waitFor(() => expect(screen.getByText('Note not found')).toBeInTheDocument())
+})
+
+test('shows a connection error instead of "Note not found" when the request fails', async () => {
+  //no response object at all is what a network failure looks like
+  api.get.mockRejectedValue(new Error('Network Error'));
+
+  renderEditor('/editor/1')
+
+  await waitFor(() => expect(screen.getByText('Could not load this note, try again')).toBeInTheDocument())
+  expect(screen.queryByText('Note not found')).not.toBeInTheDocument()
 })

@@ -17,10 +17,13 @@ export function AuthProvider({children})
 
         api.get("/auth/me")
             .then((res) => {
+                //if someone logged in while this was still in flight, dont overwrite the newer session
+                if (localStorage.getItem("token") !== token) return;
                 setUser(res.data.user);
             })
             .catch(() => {
-                //token expired or invalid, throw it away
+                //token expired or invalid, throw it away, but only if its still the one we checked
+                if (localStorage.getItem("token") !== token) return;
                 localStorage.removeItem("token");
             })
             .finally(() => {
