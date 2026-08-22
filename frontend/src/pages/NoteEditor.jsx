@@ -1,41 +1,62 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import { useParams,useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import api from '../api/client.js';
 
-function NoteEditor({ notes,setNotes }){
+function NoteEditor({ refreshNotes }){
 
     const{id} = useParams()
     const navigate = useNavigate()
 
     const isEditRoute = Boolean(id)
-    const existingNote = notes.find((note) =>note.id === Number(id))
 
-    const[title, setTitle] = useState(existingNote? existingNote.title:'')
-    const[content, setContent] = useState(existingNote? existingNote.content:'')
+    const[title, setTitle] = useState('')
+    const[content, setContent] = useState('')
+    const[loading, setLoading] = useState(isEditRoute)
+    const[notFound, setNotFound] = useState(false)
 
+    //if editing an existing note, fetch it by id instead of searching a prop list
+    useEffect(() => {
+        if (!isEditRoute) return;
 
-    function handleSave(e)
+        api.get(`/notes/${id}`)
+            .then((res) => {
+                setTitle(res.data.note.title);
+                setContent(res.data.note.content);
+            })
+            .catch(() => {
+                setNotFound(true);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, [id, isEditRoute]);
+
+    async function handleSave(e)
     {
         e.preventDefault()
 
-        if(existingNote)
+        if(isEditRoute)
         {
-            setNotes(notes.map((note)=>
-            note.id ===existingNote.id?{...note, title, content}:note
-            ))
+            await api.put(`/notes/${id}`, {title, content});
         }
         else
         {
-            const newNote = {id:Date.now(),title,content}
-            setNotes([...notes,newNote])
+            await api.post('/notes', {title, content});
         }
+
+        refreshNotes();
         navigate('/dashboard')
     }
 
-    if (isEditRoute && !existingNote) {
-  return <p>Note not found</p>
-}
+    if (loading) {
+        return <p>Loading...</p>
+    }
+
+    if (notFound) {
+        return <p>Note not found</p>
+    }
 
     return(
         <div className="min-h-screen bg-gray-50">
@@ -45,7 +66,7 @@ function NoteEditor({ notes,setNotes }){
 
                
                     <h1 className="text-2xl font-bold text-gray-900 mb-6">
-                        {existingNote ? 'Edit Note' : 'New Note'}
+                        {isEditRoute ? 'Edit Note' : 'New Note'}
                     </h1>
 
                     <form onSubmit={handleSave}>

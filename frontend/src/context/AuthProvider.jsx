@@ -1,28 +1,55 @@
-import {useState} from 'react';
-import { AuthContext } from './Auth-context.js';
-
+import {useState, useEffect} from 'react';
+import { AuthContext } from './Auth-context.js'
+import api from '../api/client.js';
 
 export function AuthProvider({children})
 {
-    const[user, setUser] = useState(null)
+    const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(() => Boolean(localStorage.getItem("token"))) //true until we know if a saved token is still valid
 
-    function login(email)
+    //on first load, if theres a token from a previous session try to restore it
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+           return;
+        }
+
+        api.get("/auth/me")
+            .then((res) => {
+                setUser(res.data.user);
+            })
+            .catch(() => {
+                //token expired or invalid, throw it away
+                localStorage.removeItem("token");
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, []);
+
+    async function login(email, password)
     {
-        setUser({email})
+        const res = await api.post("/auth/login", {email, password});
+        localStorage.setItem("token", res.data.token);
+        setUser(res.data.user);
     }
 
-    function signup(name,email)
+    async function signup(name, email, password)
     {
-        setUser({name,email})
+        await api.post("/auth/register", {name, email, password});
+        //register doesnt return a token so log in right after
+        await login(email, password);
     }
 
     function logout()
     {
+        localStorage.removeItem("token");
         setUser(null)
     }
 
     return(
-        <AuthContext.Provider value={{user,login,signup,logout}}>
+        <AuthContext.Provider value={{user, loading, login, signup, logout}}>
 
             {children}
 

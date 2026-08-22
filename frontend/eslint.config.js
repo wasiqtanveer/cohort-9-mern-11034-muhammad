@@ -18,8 +18,8 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
-    {
-    files: ['**/*.test.{js,jsx}'],
+       {
+    files: ['**/*.test.{js,jsx}', '**/__mocks__/**'],
     languageOptions: {
       globals: { ...globals.browser, ...globals.jest },
     },

@@ -2,6 +2,7 @@ import {Link,} from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import {useAuth} from '../context/Auth-context.js';
 import {Pencil, Trash2} from 'lucide-react';
+import api from '../api/client.js';
 
 //different colors for the note cards
 const cardColors = [
@@ -19,10 +20,15 @@ function getCardColor(id)
 }
 
 
-function Dashboard({notes, setNotes}){ //recieving as props for app.jsx 
+function Dashboard({notes, refreshNotes}){
 
   const {logout} = useAuth()
 
+  async function handleDelete(id)
+  {
+    await api.delete(`/notes/${id}`);
+    refreshNotes();
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -52,7 +58,7 @@ function Dashboard({notes, setNotes}){ //recieving as props for app.jsx
             <div className="text-gray-600 text-sm mb-4 line-clamp-3" dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(note.content)}} />
 
               <div className="flex gap-3 text-sm">
-               <button aria-label="Delete note" onClick={()=> setNotes(notes.filter((n)=> n.id!== note.id))} className="text-red-600 hover:underline"><Trash2 size={16}/></button>
+               <button aria-label="Delete note" onClick={()=> handleDelete(note.id)} className="text-red-600 hover:underline"><Trash2 size={16}/></button>
 
               <Link aria-label="Edit note" to={`/editor/${note.id}`} className="text-blue-600 hover:underline"><Pencil size={16}/></Link>
 
