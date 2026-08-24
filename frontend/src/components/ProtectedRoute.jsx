@@ -3,7 +3,11 @@ import {useAuth} from '../context/Auth-context.js';
 
 function ProtectedRoute({children})
 {
-    const {user} = useAuth()
+    const {user, loading} = useAuth()
+
+    if (loading) {
+        return <p>Loading...</p>
+    }
 
     if(!user)
     {

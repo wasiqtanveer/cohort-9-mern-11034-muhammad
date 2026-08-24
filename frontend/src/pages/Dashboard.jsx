@@ -1,7 +1,9 @@
 import {Link,} from 'react-router-dom';
+import {useState} from 'react';
 import DOMPurify from 'dompurify';
 import {useAuth} from '../context/Auth-context.js';
 import {Pencil, Trash2} from 'lucide-react';
+import api from '../api/client.js';
 
 //different colors for the note cards
 const cardColors = [
@@ -19,10 +21,22 @@ function getCardColor(id)
 }
 
 
-function Dashboard({notes, setNotes}){ //recieving as props for app.jsx 
+function Dashboard({notes, refreshNotes, notesError}){
 
   const {logout} = useAuth()
+  const [error, setError] = useState('')
 
+  async function handleDelete(id)
+  {
+    setError('');
+    try {
+      await api.delete(`/notes/${id}`);
+      refreshNotes();
+    } catch (err) {
+      //otherwise the delete button just silently does nothing
+      setError(err.response?.data?.message || 'Could not delete that note, try again');
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -43,6 +57,11 @@ function Dashboard({notes, setNotes}){ //recieving as props for app.jsx
         <Link to='/editor' className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">+ New Note</Link>
       </div>
 
+      {/* one banner for both the failed list fetch and a failed delete */}
+      {(error || notesError) && (
+        <p className='text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4'>{error || notesError}</p>
+      )}
+
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {notes.map((note)=>(
@@ -52,7 +71,7 @@ function Dashboard({notes, setNotes}){ //recieving as props for app.jsx
             <div className="text-gray-600 text-sm mb-4 line-clamp-3" dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(note.content)}} />
 
               <div className="flex gap-3 text-sm">
-               <button aria-label="Delete note" onClick={()=> setNotes(notes.filter((n)=> n.id!== note.id))} className="text-red-600 hover:underline"><Trash2 size={16}/></button>
+               <button aria-label="Delete note" onClick={()=> handleDelete(note.id)} className="text-red-600 hover:underline"><Trash2 size={16}/></button>
 
               <Link aria-label="Edit note" to={`/editor/${note.id}`} className="text-blue-600 hover:underline"><Pencil size={16}/></Link>
 

@@ -1,23 +1,39 @@
 import {Routes, Route, Navigate} from 'react-router-dom';
-import {useState} from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import NoteEditor from './pages/NoteEditor';
 import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './pages/Profile';
-
-
-const dummyNotes = [
-  {id:1, title:'Grocery List', content:'milk, eggs, bread'},
-  {id:2, title:'Meeting Notes', content:'Discuss App Scalability'},
-  {id:3, title:'Ideas', content:'Build a Notes app'}
-]
+import {useAuth} from './context/Auth-context.js';
+import api from './api/client.js';
 
 function App()
 {
+  const [notes, setNotes] = useState([])
+  const [notesError, setNotesError] = useState('')
+  const {user} = useAuth()
 
-  const[notes,setNotes] = useState(dummyNotes)
+  //useCallback so this function has a stable identity, safe to put in a dependency array
+  const refreshNotes = useCallback(() => {
+    if (!user) return;
+    api.get("/notes")
+      .then((res) => {
+        setNotes(res.data.notes);
+        setNotesError('');
+      })
+      .catch(() => {
+        //without this a failed fetch just looks like you have no notes
+        setNotes([]);
+        setNotesError('Could not load your notes. Check your connection and try again.');
+      });
+  }, [user]);
+
+  //fetch the list whenever we go from logged out to logged in
+  useEffect(() => {
+    refreshNotes();
+  }, [refreshNotes]);
 
   return(
     <Routes>
@@ -26,15 +42,15 @@ function App()
       <Route path='/signup' element={<Signup />}/>
 
       <Route path='/dashboard' element={<ProtectedRoute>
-        <Dashboard notes={notes} setNotes={setNotes}/>
+        <Dashboard notes={notes} refreshNotes={refreshNotes} notesError={notesError}/>
       </ProtectedRoute>}/>
 
       <Route path='/editor/:id' element={<ProtectedRoute>
-        <NoteEditor notes={notes} setNotes={setNotes}/>
+        <NoteEditor refreshNotes={refreshNotes}/>
       </ProtectedRoute>}/>
 
       <Route path='/editor' element={<ProtectedRoute>
-        <NoteEditor notes={notes} setNotes={setNotes}/>
+        <NoteEditor refreshNotes={refreshNotes}/>
       </ProtectedRoute>}/>
 
       <Route path='/profile' element={<ProtectedRoute>
@@ -43,8 +59,6 @@ function App()
 
       </Route>
     </Routes>
-
-    
   )
 }
 

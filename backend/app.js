@@ -4,6 +4,8 @@ const pinoHttp = require('pino-http');
 const {notFound, errorHandler} = require("./middleware/errorHandler")
 const authRoutes = require("./routes/authRoutes")
 const notesRoutes = require("./routes/notesRoutes")
+const cors = require("cors");
+
 
 //crash on startup with a clear message instead of 500ing on every login
 if (!process.env.JWT_SECRET) {
@@ -20,6 +22,11 @@ app.use(pinoHttp({
 }));
 
 app.use(express.json());//parses jason requestion body into req.body
+
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+}));
 
 app.get('/', (req,res) =>{
     res.send('API is running')
