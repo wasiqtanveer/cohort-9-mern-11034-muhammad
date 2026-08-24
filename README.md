@@ -2,7 +2,7 @@
 
 A note-taking web app built for the 10Pearls Cohort 9 MERN assignment by Muhammad Wasiq Tanveer.
 
-Users register, log in, and keep a personal set of rich-text notes. Notes can be pinned, searched, sorted, duplicated, and recovered from a trash that empties itself after 7 days.
+Users register, log in, and keep a personal set of rich-text notes. Notes can be pinned, searched, sorted, duplicated, and recovered from a trash. Anything that has sat in the trash for more than 7 days is purged the next time the trash is opened.
 
 ---
 
@@ -49,8 +49,37 @@ Postgres rather than Mongo, and plain SQL rather than an ORM, so the schema and 
 **Trash**
 - Deleting moves a note to the trash instead of destroying it
 - Restore it, or delete it permanently (both confirm first)
-- Anything sitting in the trash for more than 7 days is purged automatically
+- Anything sitting in the trash for more than 7 days is purged, which happens on the next read of `GET /notes/trash` rather than on a timer
 - Trashed notes cannot be edited or pinned
+
+---
+
+## Logging
+
+Pino is wired through a single shared instance in `backend/config/logger.js`, used by both the HTTP middleware and the controllers, so everything lands in one stream with one set of redaction rules.
+
+**What gets logged**
+
+| Layer | Covered by |
+|---|---|
+| Every HTTP request and response | `pino-http` in `app.js` |
+| Every unhandled exception | `req.log.error` in the global error handler |
+| Server start, stop, and fatal crashes | `server.js` |
+| User activities | `req.log.info` / `.warn` in the controllers |
+
+**Activity events**
+
+`user_registered`, `user_logged_in`, `login_failed`, `note_created`, `note_updated`, `note_trashed`, `note_restored`, `note_deleted_permanently`, `note_pin_changed`, `trash_purged`
+
+Each line carries an `event` name plus the request id from `pino-http`, so an activity line can be traced back to the HTTP request that caused it.
+
+**What never gets logged**
+
+Passwords, password hashes and JWTs are never passed to the logger, and `config/logger.js` also redacts `authorization` and `cookie` headers plus any `password`, `password_hash` or `token` field as a second line of defence. Note titles and bodies are the user's private content, so only note ids are logged.
+
+Failed logins are `warn` rather than `info` — a run of them against one email is what a brute-force attempt looks like. Permanent deletion is `warn` too, since it's the only unrecoverable action in the app.
+
+Set `LOG_LEVEL` to override the level. Logging is disabled entirely when `NODE_ENV=test` so it doesn't bury test output.
 
 ---
 
@@ -66,7 +95,7 @@ Postgres rather than Mongo, and plain SQL rather than an ORM, so the schema and 
 ### 1. Clone and install
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/10pshine-cohort-9/cohort-9-mern-11034-muhammad.git
 cd cohort-9-mern-11034-muhammad
 
 cd backend && npm install
@@ -99,6 +128,9 @@ DB_NAME_TEST=notes_app_test
 
 JWT_SECRET=some_long_random_string
 JWT_EXPIRES_IN=7d
+
+# optional, defaults to debug outside production
+LOG_LEVEL=debug
 ```
 
 `JWT_SECRET` is validated at startup — the server refuses to boot without it.
@@ -137,8 +169,8 @@ The frontend expects the API at `http://localhost:5000/api` (set in `frontend/sr
 ## Tests
 
 ```bash
-cd backend  && npm test     # 50 tests, Mocha + Chai + Supertest
-cd frontend && npm test     # 27 tests, Jest + React Testing Library
+cd backend     && npm test     # Mocha + Chai + Supertest
+cd ../frontend && npm test     # Jest + React Testing Library
 ```
 
 The backend suite hits a real Postgres database — `notes_app_test` must exist and have the schema applied. It truncates tables before each test, so never point `DB_NAME_TEST` at your development database.
@@ -182,7 +214,7 @@ All `/api/notes` routes require an `Authorization: Bearer <token>` header and on
 
 ## Schema
 
-```
+```text
 users
   id             SERIAL PRIMARY KEY
   name           VARCHAR(100)   NOT NULL
@@ -207,7 +239,7 @@ Deleting a user cascades to their notes. `deleted_at` drives the trash: every li
 
 ## Project structure
 
-```
+```text
 backend/
   config/db.js            postgres connection pool
   controllers/            auth and notes request handlers
