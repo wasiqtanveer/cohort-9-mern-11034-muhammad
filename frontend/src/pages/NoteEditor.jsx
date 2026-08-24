@@ -7,6 +7,7 @@ import {ArrowLeft} from 'lucide-react';
 import api from '../api/client.js';
 import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import {getCanvasClass} from '../theme/sessionTheme.js';
+import {validateProps} from '../utils/validateProps.js';
 
 //module level, not inside the component. a fresh object on every render makes
 //quill tear down and rebuild its toolbar as you type
@@ -30,9 +31,12 @@ const quillFormats = [
 ]
 
 //wrapper only exists to give the editor a key, so switching note ids remounts it with fresh state
-function NoteEditor({ refreshNotes }){
+function NoteEditor(props){
+    //react 19 no longer runs propTypes itself, so the checks are invoked by hand
+    validateProps(NoteEditor.propTypes, props, 'NoteEditor')
+
     const{id} = useParams()
-    return <NoteEditorForm key={id || 'new'} id={id} refreshNotes={refreshNotes}/>
+    return <NoteEditorForm key={id || 'new'} id={id} refreshNotes={props.refreshNotes}/>
 }
 
 //shared shell so the loading, not found and error states sit on the same background
@@ -46,7 +50,11 @@ function EditorShell({children}){
     )
 }
 
-function NoteEditorForm({ id, refreshNotes }){
+function NoteEditorForm(props){
+
+    validateProps(NoteEditorForm.propTypes, props, 'NoteEditorForm')
+
+    const { id, refreshNotes } = props
 
     const navigate = useNavigate()
 

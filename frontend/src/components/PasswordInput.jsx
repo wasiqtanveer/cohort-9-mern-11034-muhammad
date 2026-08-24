@@ -1,10 +1,16 @@
 import {useState} from 'react';
 import PropTypes from 'prop-types';
 import {Eye, EyeOff} from 'lucide-react';
+import {validateProps} from '../utils/validateProps.js';
 
 //shared by login and signup so the markup only exists once.
 //the visible state lives in here because neither page needs to know about it
-function PasswordInput({id = 'password', label = 'Password', value, onChange, placeholder = '••••••••'}){
+function PasswordInput(props){
+
+  //react 19 no longer runs propTypes itself, so the checks are invoked by hand
+  validateProps(PasswordInput.propTypes, props, 'PasswordInput')
+
+  const {id = 'password', label = 'Password', value, onChange, placeholder = '••••••••'} = props
 
   const [visible, setVisible] = useState(false)
 

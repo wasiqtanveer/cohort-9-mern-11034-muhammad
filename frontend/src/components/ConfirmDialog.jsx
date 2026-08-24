@@ -1,9 +1,15 @@
 import {useEffect, useRef} from 'react';
 import PropTypes from 'prop-types';
+import {validateProps} from '../utils/validateProps.js';
 
 //generic confirm, used before anything destructive.
 //renders nothing at all when closed so it stays out of the accessibility tree
-function ConfirmDialog({open, title, message, confirmLabel = 'Delete', onConfirm, onCancel}){
+function ConfirmDialog(props){
+
+  //react 19 no longer runs propTypes itself, so the checks are invoked by hand
+  validateProps(ConfirmDialog.propTypes, props, 'ConfirmDialog')
+
+  const {open, title, message, confirmLabel = 'Delete', onConfirm, onCancel} = props
 
   const panelRef = useRef(null)
   const confirmRef = useRef(null)

@@ -3,10 +3,16 @@ import {Link, useLocation} from 'react-router-dom';
 import {useAuth} from '../context/Auth-context.js';
 import {Plus, User, LogOut, Trash2, StickyNote} from 'lucide-react';
 import {getCanvasClass} from '../theme/sessionTheme.js';
+import {validateProps} from '../utils/validateProps.js';
 
 //the rail and page frame shared by the dashboard and the trash.
 //canvas picks which session colour to sit on, 'dashboard' or 'profile'
-function AppShell({children, canvas = 'dashboard'}){
+function AppShell(props){
+
+  //react 19 no longer runs propTypes itself, so the checks are invoked by hand
+  validateProps(AppShell.propTypes, props, 'AppShell')
+
+  const {children, canvas = 'dashboard'} = props
 
   const {logout} = useAuth()
   const {pathname} = useLocation()

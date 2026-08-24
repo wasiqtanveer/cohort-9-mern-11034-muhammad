@@ -6,6 +6,7 @@ import {Pencil, Trash2, Search, Pin, StickyNote, Copy} from 'lucide-react';
 import api from '../api/client.js';
 import AppShell from '../components/AppShell.jsx';
 import ConfirmDialog from '../components/ConfirmDialog.jsx';
+import {validateProps} from '../utils/validateProps.js';
 
 //full literal class strings, tailwind scans the source for these
 //so a template like bg-note-${n} would never make it into the build
@@ -57,7 +58,12 @@ const searchInOptions = [
 ]
 
 
-function Dashboard({notes, refreshNotes, notesError, notesLoading}){
+function Dashboard(props){
+
+  //react 19 no longer runs propTypes itself, so the checks are invoked by hand
+  validateProps(Dashboard.propTypes, props, 'Dashboard')
+
+  const {notes, refreshNotes, notesError, notesLoading} = props
 
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')

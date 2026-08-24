@@ -1,8 +1,14 @@
 import PropTypes from 'prop-types';
+import {validateProps} from '../utils/validateProps.js';
 
 //labelled text input. same shape and spacing as PasswordInput so the fields
 //in a form line up whichever of the two you use
-function TextField({id, label, type = 'text', value, onChange, placeholder}){
+function TextField(props){
+
+  //react 19 no longer runs propTypes itself, so the checks are invoked by hand
+  validateProps(TextField.propTypes, props, 'TextField')
+
+  const {id, label, type = 'text', value, onChange, placeholder} = props
 
   return (
     <div>

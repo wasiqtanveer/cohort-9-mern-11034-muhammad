@@ -1,9 +1,15 @@
 import PropTypes from 'prop-types';
 import Doodles from './Doodles.jsx';
+import {validateProps} from '../utils/validateProps.js';
 
 //the shell both auth pages share. having it in one place is what stops login and
 //signup drifting apart on padding, heading size and button height the way they did before
-function AuthLayout({canvas, title, subtitle, error, children, footer}){
+function AuthLayout(props){
+
+  //react 19 no longer runs propTypes itself, so the checks are invoked by hand
+  validateProps(AuthLayout.propTypes, props, 'AuthLayout')
+
+  const {canvas, title, subtitle, error, children, footer} = props
 
   return (
     //overflow-hidden so the doodles near the edges cant widen the page

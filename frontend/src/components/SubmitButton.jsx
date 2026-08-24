@@ -1,7 +1,13 @@
 import PropTypes from 'prop-types';
+import {validateProps} from '../utils/validateProps.js';
 
 //the full width dark submit button both auth forms end with
-function SubmitButton({submitting, idleLabel, busyLabel}){
+function SubmitButton(props){
+
+  //react 19 no longer runs propTypes itself, so the checks are invoked by hand
+  validateProps(SubmitButton.propTypes, props, 'SubmitButton')
+
+  const {submitting, idleLabel, busyLabel} = props
 
   return (
     <button

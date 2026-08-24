@@ -5,6 +5,7 @@ import {Trash2, RotateCcw} from 'lucide-react';
 import api from '../api/client.js';
 import AppShell from '../components/AppShell.jsx';
 import ConfirmDialog from '../components/ConfirmDialog.jsx';
+import {validateProps} from '../utils/validateProps.js';
 
 const RETENTION_DAYS = 7
 
@@ -19,7 +20,12 @@ function daysLeft(deletedAt)
   return Math.max(0, Math.ceil(RETENTION_DAYS - elapsedDays))
 }
 
-function Trash({refreshNotes}){
+function Trash(props){
+
+  //react 19 no longer runs propTypes itself, so the checks are invoked by hand
+  validateProps(Trash.propTypes, props, 'Trash')
+
+  const {refreshNotes} = props
 
   const [notes, setNotes] = useState([])
   const [loading, setLoading] = useState(true)
