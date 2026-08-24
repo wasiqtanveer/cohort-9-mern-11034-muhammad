@@ -1,4 +1,5 @@
 import {useState, useEffect, useCallback} from 'react';
+import PropTypes from 'prop-types';
 import DOMPurify from 'dompurify';
 import {Trash2, RotateCcw} from 'lucide-react';
 import api from '../api/client.js';
@@ -135,6 +136,11 @@ function Trash({refreshNotes}){
       />
     </AppShell>
   )
+}
+
+Trash.propTypes = {
+  //restoring a note puts it back in the dashboard list, which is stale after that
+  refreshNotes: PropTypes.func.isRequired,
 }
 
 export default Trash;

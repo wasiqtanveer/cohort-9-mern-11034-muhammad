@@ -1,4 +1,5 @@
 import {useState, useEffect, useRef} from 'react';
+import PropTypes from 'prop-types';
 import {useParams, useNavigate, Link} from 'react-router-dom';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
@@ -286,6 +287,20 @@ function NoteEditorForm({ id, refreshNotes }){
             />
         </EditorShell>
     )
+}
+
+const refreshNotesShape = {
+  refreshNotes: PropTypes.func.isRequired,
+}
+
+NoteEditor.propTypes = refreshNotesShape
+NoteEditorForm.propTypes = {
+  ...refreshNotesShape,
+  //absent on the /editor route, present as a url param on /editor/:id
+  id: PropTypes.string,
+}
+EditorShell.propTypes = {
+  children: PropTypes.node.isRequired,
 }
 
 export default NoteEditor;

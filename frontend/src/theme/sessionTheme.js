@@ -44,6 +44,13 @@ function clearStored()
 }
 
 
+//localStorage is editable by hand, so anything read back has to be checked
+function isValidIndex(value)
+{
+  return Number.isInteger(value) && value >= 0 && value < canvasClasses.length
+}
+
+
 //picks two different indexes. adding 1 when b lands on or after a shifts it past a,
 //which guarantees they differ without looping until they happen to.
 //
@@ -83,7 +90,9 @@ function readPair()
   try {
     const pair = JSON.parse(raw)
 
-    if (typeof pair?.dashboard !== 'number' || typeof pair?.profile !== 'number') {
+    //typeof alone lets -1 and 1.5 through, and canvasClasses[-1] is undefined,
+    //which would render the page with no background at all
+    if (!isValidIndex(pair?.dashboard) || !isValidIndex(pair?.profile) || pair.dashboard === pair.profile) {
       return rollSessionTheme()
     }
     return pair

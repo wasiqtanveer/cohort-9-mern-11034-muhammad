@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import PropTypes from 'prop-types';
 import {Eye, EyeOff} from 'lucide-react';
 
 //shared by login and signup so the markup only exists once.
@@ -37,6 +38,16 @@ function PasswordInput({id = 'password', label = 'Password', value, onChange, pl
       </div>
     </div>
   )
+}
+
+PasswordInput.propTypes = {
+  //also used as the label's htmlFor, so it has to be unique on the page
+  id: PropTypes.string,
+  label: PropTypes.string,
+  //controlled input, so value and onChange always travel together
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  placeholder: PropTypes.string,
 }
 
 export default PasswordInput;

@@ -44,8 +44,18 @@ export function AuthProvider({children})
     async function signup(name, email, password)
     {
         await api.post("/auth/register", {name, email, password});
-        //register doesnt return a token so log in right after
-        await login(email, password);
+
+        //register doesnt return a token so log in right after. if THIS half fails the
+        //account already exists, and the raw error would tell them their details were
+        //wrong, which is misleading. say what actually happened instead
+        try {
+            await login(email, password);
+        } catch {
+            const err = new Error("Your account was created but signing in failed. Try logging in.");
+            //shaped like an axios error so the auth pages can read it the same way
+            err.response = {data: {message: "Your account was created but signing in failed. Try logging in."}};
+            throw err;
+        }
     }
 
     function logout()

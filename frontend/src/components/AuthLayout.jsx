@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import Doodles from './Doodles.jsx';
 
 //the shell both auth pages share. having it in one place is what stops login and
@@ -32,6 +33,17 @@ function AuthLayout({canvas, title, subtitle, error, children, footer}){
       </div>
     </div>
   )
+}
+
+AuthLayout.propTypes = {
+  //a tailwind background class, eg 'bg-canvas'
+  canvas: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string.isRequired,
+  //empty string when there is nothing to show, so not required
+  error: PropTypes.string,
+  children: PropTypes.node.isRequired,
+  footer: PropTypes.node.isRequired,
 }
 
 export default AuthLayout;

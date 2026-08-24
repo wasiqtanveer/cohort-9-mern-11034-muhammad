@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 //labelled text input. same shape and spacing as PasswordInput so the fields
 //in a form line up whichever of the two you use
 function TextField({id, label, type = 'text', value, onChange, placeholder}){
@@ -15,6 +17,17 @@ function TextField({id, label, type = 'text', value, onChange, placeholder}){
       />
     </div>
   )
+}
+
+TextField.propTypes = {
+  //also used as the label's htmlFor, so it has to be unique on the page
+  id: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  type: PropTypes.string,
+  //controlled input, so value and onChange always travel together
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  placeholder: PropTypes.string,
 }
 
 export default TextField;

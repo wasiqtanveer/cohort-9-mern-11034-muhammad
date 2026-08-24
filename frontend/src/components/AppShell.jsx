@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import {Link, useLocation} from 'react-router-dom';
 import {useAuth} from '../context/Auth-context.js';
 import {Plus, User, LogOut, Trash2, StickyNote} from 'lucide-react';
@@ -65,6 +66,14 @@ function AppShell({children, canvas = 'dashboard'}){
           <span className='text-base font-bold tracking-tight text-ink'>Notely</span>
         </div>
         <div className='flex items-center gap-1'>
+          {/* the rail is hidden at this width, so without these there is no way back
+              to the notes list or into a new note from trash or profile */}
+          <Link to='/dashboard' aria-label='Notes' className='grid h-9 w-9 place-items-center rounded-lg text-ink/50 hover:text-ink'>
+            <StickyNote size={18}/>
+          </Link>
+          <Link to='/editor' aria-label='New note' className='grid h-9 w-9 place-items-center rounded-lg text-ink/50 hover:text-ink'>
+            <Plus size={18}/>
+          </Link>
           <Link to='/trash' aria-label='Trash' className='grid h-9 w-9 place-items-center rounded-lg text-ink/50 hover:text-ink'>
             <Trash2 size={18}/>
           </Link>
@@ -84,6 +93,12 @@ function AppShell({children, canvas = 'dashboard'}){
       </main>
     </div>
   )
+}
+
+AppShell.propTypes = {
+  children: PropTypes.node.isRequired,
+  //which of the two session colours this page sits on
+  canvas: PropTypes.oneOf(['dashboard', 'profile']),
 }
 
 export default AppShell;

@@ -1,5 +1,6 @@
 import {Link} from 'react-router-dom';
 import {useState, useMemo} from 'react';
+import PropTypes from 'prop-types';
 import DOMPurify from 'dompurify';
 import {Pencil, Trash2, Search, Pin, StickyNote, Copy} from 'lucide-react';
 import api from '../api/client.js';
@@ -286,6 +287,20 @@ function Dashboard({notes, refreshNotes, notesError, notesLoading}){
       />
     </AppShell>
   )
+}
+
+Dashboard.propTypes = {
+  notes: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    content: PropTypes.string,
+    is_pinned: PropTypes.bool,
+    created_at: PropTypes.string,
+    updated_at: PropTypes.string,
+  })).isRequired,
+  refreshNotes: PropTypes.func.isRequired,
+  notesError: PropTypes.string,
+  notesLoading: PropTypes.bool,
 }
 
 export default Dashboard;
