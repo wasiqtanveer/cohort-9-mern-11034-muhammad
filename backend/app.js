@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const pinoHttp = require('pino-http');
+const logger = require("./config/logger");
 const {notFound, errorHandler} = require("./middleware/errorHandler")
 const authRoutes = require("./routes/authRoutes")
 const notesRoutes = require("./routes/notesRoutes")
@@ -15,11 +16,10 @@ if (!process.env.JWT_SECRET) {
 const app = express();
 app.disable("x-powered-by");//dont tell attackers we are running express
 
-//pino logs request headers by default, so hide the ones that carry tokens
-app.use(pinoHttp({
-    enabled: process.env.NODE_ENV !== "test",
-    redact: ["req.headers.authorization", "req.headers.cookie"],
-}));
+//logs every http request and response, and gives each request a req.log child
+//logger that the controllers use for activity lines. level and redaction both
+//live on the shared instance in config/logger.js
+app.use(pinoHttp({logger}));
 
 app.use(express.json());//parses jason requestion body into req.body
 
