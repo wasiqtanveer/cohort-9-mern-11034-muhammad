@@ -26,9 +26,15 @@ function shutdown(signal) {
     logger.info({event: "server_stopping", signal}, "shutting down");
 
     server.close(async () => {
-        await pool.end();
-        logger.info({event: "server_stopped"}, "shutdown complete");
-        process.exit(0);
+        //an unhandled rejection here would skip the exit entirely and hang the process
+        try {
+            await pool.end();
+            logger.info({event: "server_stopped"}, "shutdown complete");
+            process.exit(0);
+        } catch (err) {
+            logger.error({event: "shutdown_failed", err}, "failed to close the database pool");
+            process.exit(1);
+        }
     });
 }
 

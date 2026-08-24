@@ -48,7 +48,9 @@ async function register(req,res)
 
     //req.log is the per request child logger from pino-http, so this line carries
     //the same request id as the http log for the same call
-    req.log.info({event: "user_registered", userId: result.rows[0].id, email}, "new user registered");
+    //userId only, no email. the http log line already carries the request id and
+    //ip for correlation, so storing the address again is retention we dont need
+    req.log.info({event: "user_registered", userId: result.rows[0].id}, "new user registered");
 
     res.status(201).json({user: result.rows[0]})
 
@@ -81,7 +83,9 @@ async function login(req,res)
     if (!user)
     {
         //warn not info, a run of these against one email is what a brute force looks like
-        req.log.warn({event: "login_failed", reason: "unknown_email", email}, "failed login attempt");
+        //no email here either. the request id and ip in the http log are enough to
+        //spot a burst of these, which is what a brute force looks like
+        req.log.warn({event: "login_failed", reason: "unknown_email"}, "failed login attempt");
 
         const err = new Error("Invalid email or password");
         err.status = 401;
