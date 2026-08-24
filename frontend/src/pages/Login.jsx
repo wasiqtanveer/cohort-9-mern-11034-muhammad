@@ -1,7 +1,10 @@
-import {Link, } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {useState} from 'react';
 import {useAuth} from '../context/Auth-context.js';
-import {useNavigate} from 'react-router-dom';
+import AuthLayout from '../components/AuthLayout.jsx';
+import TextField from '../components/TextField.jsx';
+import PasswordInput from '../components/PasswordInput.jsx';
+import SubmitButton from '../components/SubmitButton.jsx';
 
 function Login(){
   const [email, setEmail] = useState('')
@@ -20,54 +23,43 @@ function Login(){
       await login(email, password)
       navigate('/dashboard')
     } catch (err) {
-      //backend sends {message: "..."} on 400/401, use it if its there
-      setError(err.response?.data?.message || 'Something went wrong, try again')
+      //no err.response at all means the request never reached the server,
+      //which is a very different problem from a wrong password
+      if (!err.response) {
+        setError('Cannot reach the server. Is the backend running?')
+      } else {
+        setError(err.response.data?.message || 'Something went wrong, try again')
+      }
     } finally {
       setSubmitting(false)
     }
   }
 
   return(
-    <div className='min-h-screen flex items-center justify-center bg-gray-50'>
-      <div className='bg-white rounded-xl shadow-sm border border-gray-200 p-8 w-full max-w-sm'>
-        <h1 className='text-2xl font-bold text-gray-900 mb-6'> Login </h1>
+    <AuthLayout
+      canvas='bg-canvas'
+      title='Welcome back'
+      subtitle='Log in to get to your notes.'
+      error={error}
+      footer={<>Don&apos;t have an account? <Link to='/signup' className='font-medium text-ink underline underline-offset-2 hover:no-underline'>Sign up</Link></>}
+    >
+      <form onSubmit={handleSubmit} className='space-y-3'>
 
-        {error && (
-          <p className='text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4'>{error}</p>
-        )}
-
-        <form onSubmit={handleSubmit} className='space-y-4'>
-
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input
-        id="email"
-        type = 'email'
-        value={email}
-        onChange={(e)=> setEmail(e.target.value)}
-        placeholder='Email'
-        className='w-full border border-gray-300 px-3 rounded-lg py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
+        <TextField
+          id='email'
+          label='Email'
+          type='email'
+          value={email}
+          onChange={(e)=> setEmail(e.target.value)}
+          placeholder='you@example.com'
         />
 
-        <label htmlFor="password">Password</label>
-        <input
-        id="password"
-        type='password'
-        value={password}
-        onChange={(e)  => setPassword(e.target.value)}
-        placeholder='Password'
-         className='w-full border border-gray-300 px-3 rounded-lg py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
-        />
+        <PasswordInput value={password} onChange={(e)=> setPassword(e.target.value)} />
 
-        <button type='submit' disabled={submitting} className='bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full disabled:opacity-50'>
-          {submitting ? 'Logging in...' : 'Log In'}
-        </button>
+        <SubmitButton submitting={submitting} idleLabel='Log In' busyLabel='Logging in...'/>
 
-        </form>
-        <p className="text-sm text-gray-600 mt-4 text-center">
-        Don't have an account? <Link to='/signup' className="text-blue-600 hover:underline">Sign up</Link>
-      </p>
-      </div>
-    </div>
+      </form>
+    </AuthLayout>
   )
 }
 

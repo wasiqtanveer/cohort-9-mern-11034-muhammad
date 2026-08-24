@@ -1,10 +1,13 @@
-import {Link,} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import {useState} from 'react';
 import {useAuth} from '../context/Auth-context.js';
-import {useNavigate} from 'react-router-dom';
+import AuthLayout from '../components/AuthLayout.jsx';
+import TextField from '../components/TextField.jsx';
+import PasswordInput from '../components/PasswordInput.jsx';
+import SubmitButton from '../components/SubmitButton.jsx';
 
 function Signup(){
-    const [name, setName] = useState('')
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -18,66 +21,53 @@ function Signup(){
     setError('')
     setSubmitting(true)
     try {
-      await signup(name,email,password)
+      await signup(name, email, password)
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong, try again')
+      //no err.response at all means the request never reached the server
+      if (!err.response) {
+        setError('Cannot reach the server. Is the backend running?')
+      } else {
+        setError(err.response.data?.message || 'Something went wrong, try again')
+      }
     } finally {
       setSubmitting(false)
     }
   }
 
   return(
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6"> Signup </h1>
+    <AuthLayout
+      canvas='bg-canvas-alt'
+      title='Create account'
+      subtitle='Somewhere to put your thoughts.'
+      error={error}
+      footer={<>Already have an account? <Link to='/login' className='font-medium text-ink underline underline-offset-2 hover:no-underline'>Log in</Link></>}
+    >
+      <form onSubmit={handleSubmit} className='space-y-3'>
 
-        {error && (
-          <p className='text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4'>{error}</p>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-            <input
-            id="name"
-            type='text'
-            value={name}
-    
-            onChange={(e)=>setName(e.target.value)}
-            placeholder='Name'
-            className='w-full border border-gray-300 px-3 rounded-lg py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
-            />
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input
-        id="email"
-        type = 'email'
-        value={email}
-        onChange={(e)=> setEmail(e.target.value)}
-        placeholder='Email'
-        className='w-full border border-gray-300 px-3 rounded-lg py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
+        <TextField
+          id='name'
+          label='Name'
+          value={name}
+          onChange={(e)=> setName(e.target.value)}
+          placeholder='Your name'
         />
 
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-        <input
-        id="password"
-        type='password'
-        value={password}
-        onChange={(e)  => setPassword(e.target.value)}
-        placeholder='Password'
-        className='w-full border border-gray-300 px-3 rounded-lg py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
+        <TextField
+          id='email'
+          label='Email'
+          type='email'
+          value={email}
+          onChange={(e)=> setEmail(e.target.value)}
+          placeholder='you@example.com'
         />
 
-        <button type='submit' disabled={submitting} className='bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full disabled:opacity-50'>
-          {submitting ? 'Signing up...' : 'Sign Up'}
-        </button>
+        <PasswordInput value={password} onChange={(e)=> setPassword(e.target.value)} placeholder='At least 8 characters' />
 
-        </form>
-       <p className="text-sm text-gray-600 mt-4 text-center">
-        Already have an account? <Link to='/login' className="text-blue-600 hover:underline">Login</Link>
-      </p>
-    </div>
-    </div>
+        <SubmitButton submitting={submitting} idleLabel='Sign Up' busyLabel='Signing up...'/>
+
+      </form>
+    </AuthLayout>
   )
 }
 
