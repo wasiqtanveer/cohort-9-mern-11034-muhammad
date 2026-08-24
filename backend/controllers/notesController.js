@@ -80,7 +80,9 @@ const sanitizeOptions ={
 
 async function createNote(req,res)
 {
-    const{title,content} = req.body;
+    //express 5 leaves req.body undefined when there is no body to parse, so
+    //destructuring it directly turns a body-less request into a 500 instead of a 400
+    const{title,content} = req.body ?? {};
 
     validateNoteInput(title, content);
 
@@ -94,13 +96,16 @@ async function createNote(req,res)
          [req.user.id, title.trim(), cleanContent]
     )
 
+    //note titles and bodies are the users private content, so only ids are logged
+    req.log.info({event: "note_created", userId: req.user.id, noteId: result.rows[0].id}, "note created");
+
     res.status(201).json({note: result.rows[0]})
 
 }
 
 
 async function updateNote(req,res){
-    const{title, content} = req.body;
+    const{title, content} = req.body ?? {};
 
     validateNoteId(req.params.id);
     validateNoteInput(title, content);
@@ -125,6 +130,8 @@ async function updateNote(req,res){
         throw err;
     }
 
+    req.log.info({event: "note_updated", userId: req.user.id, noteId: note.id}, "note updated");
+
     res.json({note});
 }
 
@@ -147,6 +154,8 @@ async function deleteNote(req, res) {
         throw err;
     }
 
+    req.log.info({event: "note_trashed", userId: req.user.id, noteId: result.rows[0].id}, "note moved to trash");
+
     res.json({message: "Note moved to trash"});
 }
 
@@ -154,13 +163,23 @@ async function deleteNote(req, res) {
 //purge on read rather than running a scheduler. it keeps the 7 day rule in the same
 //code path that displays the trash, so the list can never show an expired note
 async function getTrash(req, res) {
-    await pool.query(
+    const purged = await pool.query(
         `DELETE FROM notes
          WHERE user_id = $1
            AND deleted_at IS NOT NULL
-           AND deleted_at < NOW() - INTERVAL '7 days'`,
+           AND deleted_at < NOW() - INTERVAL '7 days'
+         RETURNING id`,
         [req.user.id]
     );
+
+    //this is the only place data is destroyed without the user asking, so it is
+    //worth a line. quiet when there was nothing to purge, which is most of the time
+    if (purged.rows.length > 0) {
+        req.log.info(
+            {event: "trash_purged", userId: req.user.id, count: purged.rows.length},
+            "expired notes purged from trash"
+        );
+    }
 
     const result = await pool.query(
         `SELECT id, title, content, created_at, updated_at, deleted_at
@@ -195,6 +214,8 @@ async function restoreNote(req, res) {
         throw err;
     }
 
+    req.log.info({event: "note_restored", userId: req.user.id, noteId: note.id}, "note restored from trash");
+
     res.json({note});
 }
 
@@ -217,6 +238,9 @@ async function deleteNotePermanently(req, res) {
         throw err;
     }
 
+    //warn rather than info, this is the one action in the app that is unrecoverable
+    req.log.warn({event: "note_deleted_permanently", userId: req.user.id, noteId: result.rows[0].id}, "note permanently deleted");
+
     res.json({message: "Note deleted"});
 }
 
@@ -224,7 +248,7 @@ async function deleteNotePermanently(req, res) {
 //takes an explicit true/false rather than flipping whatever is in the db.
 //a plain toggle would drift out of sync with the ui if two clicks landed close together
 async function setPin(req, res) {
-    const {is_pinned} = req.body;
+    const {is_pinned} = req.body ?? {};
 
     validateNoteId(req.params.id);
 
@@ -251,6 +275,8 @@ async function setPin(req, res) {
         err.status = 404;
         throw err;
     }
+
+    req.log.info({event: "note_pin_changed", userId: req.user.id, noteId: note.id, is_pinned}, "note pin changed");
 
     res.json({note});
 }

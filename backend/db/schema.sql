@@ -29,5 +29,6 @@ ALTER TABLE notes ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN NOT NULL DEFAULT FA
 -- and is due to be purged 7 days after that moment
 ALTER TABLE notes ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;
 
--- every list query filters on this column, so it is worth an index
-CREATE INDEX IF NOT EXISTS notes_deleted_at_idx ON notes(deleted_at);
+-- both list queries filter user_id and deleted_at together, so one composite index
+-- serves both. deleted_at on its own has poor selectivity since most rows are NULL
+CREATE INDEX IF NOT EXISTS notes_user_deleted_idx ON notes(user_id, deleted_at);

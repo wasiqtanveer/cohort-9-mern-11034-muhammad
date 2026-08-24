@@ -4,9 +4,14 @@ const jwt = require("jsonwebtoken");
 
 async function register(req,res)
 {
-    const{name,password} = req.body
+    //express 5 leaves req.body undefined when there is no body to parse, unlike
+    //express 4 which defaulted it to {}. without this a body-less request throws a
+    //TypeError and comes back as a 500 instead of the 400 below
+    const body = req.body ?? {};
+
+    const{name,password} = body
     //lowercase the email so User@test.com and user@test.com cant become two accounts
-    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : req.body.email
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : body.email
 
     if(!name || !email || !password)
     {
@@ -41,15 +46,22 @@ async function register(req,res)
 
     )
 
+    //req.log is the per request child logger from pino-http, so this line carries
+    //the same request id as the http log for the same call
+    req.log.info({event: "user_registered", userId: result.rows[0].id, email}, "new user registered");
+
     res.status(201).json({user: result.rows[0]})
 
 }
 
 async function login(req,res)
 {
+    //express 5 gives undefined rather than {} when there is no body, see register
+    const body = req.body ?? {};
+
     //same lowercasing as register or the lookup wont match what we stored
-    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : req.body.email;
-    const password = req.body.password;
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : body.email;
+    const password = body.password;
 
     
     if(!email || !password)
@@ -66,8 +78,11 @@ async function login(req,res)
 
     const user = result.rows[0]
 
-    if (!user) 
+    if (!user)
     {
+        //warn not info, a run of these against one email is what a brute force looks like
+        req.log.warn({event: "login_failed", reason: "unknown_email", email}, "failed login attempt");
+
         const err = new Error("Invalid email or password");
         err.status = 401;
         throw err;
@@ -76,8 +91,10 @@ async function login(req,res)
     const isMatch = await bcrypt.compare(password,user.password_hash)
 
 
-    if (!isMatch) 
+    if (!isMatch)
         {
+            req.log.warn({event: "login_failed", reason: "wrong_password", userId: user.id}, "failed login attempt");
+
             const err = new Error("Invalid email or password");
             err.status = 401;
             throw err;
@@ -89,6 +106,9 @@ async function login(req,res)
         {id: user.id},process.env.JWT_SECRET,
         {expiresIn:process.env.JWT_EXPIRES_IN,}
     )
+
+    //the token itself is never logged, only that one was issued
+    req.log.info({event: "user_logged_in", userId: user.id}, "user logged in");
 
     //sending safe use fields and never password hash
 

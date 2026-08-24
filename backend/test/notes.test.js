@@ -95,6 +95,16 @@ describe("Notes API", function()
             expect(res.status).to.equal(400);
         });
 
+        it("rejects a request with no body at all with 400", async function () {
+            //express 5 leaves req.body undefined rather than {}, which turned a
+            //body-less request into a 500 before the controllers guarded it
+            const res = await request(app)
+                .post("/api/notes")
+                .set("Authorization", `Bearer ${tokenA}`);
+
+            expect(res.status).to.equal(400);
+        });
+
         it("rejects a title longer than 200 characters with 400", async function () {
             const res = await request(app)
                 .post("/api/notes")
@@ -324,6 +334,16 @@ describe("Notes API", function()
                 .patch(`/api/notes/${note.id}/pin`)
                 .set("Authorization", `Bearer ${tokenA}`)
                 .send({is_pinned: "yes"});
+
+            expect(res.status).to.equal(400);
+        });
+
+        it("rejects a pin request with no body with 400", async function () {
+            const note = await createNoteAs(tokenA, "Pin me", "<p>x</p>");
+
+            const res = await request(app)
+                .patch(`/api/notes/${note.id}/pin`)
+                .set("Authorization", `Bearer ${tokenA}`);
 
             expect(res.status).to.equal(400);
         });
