@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+@theme{
   /* pulled off the Docket reference so every page uses the same values */
   --color-canvas: #d5d7f2;   /* periwinkle, deeper than the reference so white pops off it */
   --color-surface: #ffffff;  /* the white panels content sits on */
