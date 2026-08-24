@@ -40,7 +40,12 @@ function NoteEditor(props){
 }
 
 //shared shell so the loading, not found and error states sit on the same background
-function EditorShell({children}){
+function EditorShell(props){
+
+    validateProps(EditorShell.propTypes, props, 'EditorShell')
+
+    const {children} = props
+
     return (
         <div className={`min-h-screen ${getCanvasClass('dashboard')}`}>
             <div className='mx-auto max-w-3xl px-5 sm:px-10 py-8'>
