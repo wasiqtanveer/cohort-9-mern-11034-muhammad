@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import NoteEditor from './pages/NoteEditor';
 import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './pages/Profile';
+import Trash from './pages/Trash';
 import {useAuth} from './context/Auth-context.js';
 import api from './api/client.js';
 
@@ -13,11 +14,18 @@ function App()
 {
   const [notes, setNotes] = useState([])
   const [notesError, setNotesError] = useState('')
+  //starts true, because an empty notes array and a list we have not fetched yet
+  //look identical. without this the dashboard shows "No notes yet" on every load
+  //for as long as the request takes
+  const [notesLoading, setNotesLoading] = useState(true)
   const {user} = useAuth()
 
   //useCallback so this function has a stable identity, safe to put in a dependency array
   const refreshNotes = useCallback(() => {
     if (!user) return;
+
+    //notesLoading is only ever turned off, never back on. a later refresh after a
+    //delete or a pin swaps the list in place instead of blinking the skeleton back
     api.get("/notes")
       .then((res) => {
         setNotes(res.data.notes);
@@ -27,6 +35,9 @@ function App()
         //without this a failed fetch just looks like you have no notes
         setNotes([]);
         setNotesError('Could not load your notes. Check your connection and try again.');
+      })
+      .finally(() => {
+        setNotesLoading(false);
       });
   }, [user]);
 
@@ -42,7 +53,7 @@ function App()
       <Route path='/signup' element={<Signup />}/>
 
       <Route path='/dashboard' element={<ProtectedRoute>
-        <Dashboard notes={notes} refreshNotes={refreshNotes} notesError={notesError}/>
+        <Dashboard notes={notes} refreshNotes={refreshNotes} notesError={notesError} notesLoading={notesLoading}/>
       </ProtectedRoute>}/>
 
       <Route path='/editor/:id' element={<ProtectedRoute>
@@ -51,6 +62,10 @@ function App()
 
       <Route path='/editor' element={<ProtectedRoute>
         <NoteEditor refreshNotes={refreshNotes}/>
+      </ProtectedRoute>}/>
+
+      <Route path='/trash' element={<ProtectedRoute>
+        <Trash refreshNotes={refreshNotes}/>
       </ProtectedRoute>}/>
 
       <Route path='/profile' element={<ProtectedRoute>

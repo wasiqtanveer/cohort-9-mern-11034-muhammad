@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react';
 import { AuthContext } from './Auth-context.js'
 import api from '../api/client.js';
+import {rollSessionTheme, clearSessionTheme} from '../theme/sessionTheme.js';
 
 export function AuthProvider({children})
 {
@@ -35,6 +36,8 @@ export function AuthProvider({children})
     {
         const res = await api.post("/auth/login", {email, password});
         localStorage.setItem("token", res.data.token);
+        //new pair of page colours for every session
+        rollSessionTheme();
         setUser(res.data.user);
     }
 
@@ -48,6 +51,7 @@ export function AuthProvider({children})
     function logout()
     {
         localStorage.removeItem("token");
+        clearSessionTheme();
         setUser(null)
     }
 
