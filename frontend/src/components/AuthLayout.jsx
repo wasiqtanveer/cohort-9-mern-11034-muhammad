@@ -45,8 +45,8 @@ AuthLayout.propTypes = {
   title: PropTypes.string.isRequired,
   subtitle: PropTypes.string.isRequired,
   error: PropTypes.string,
-  children: PropTypes.node.isRequired,
-  footer: PropTypes.node.isRequired,
+  children: PropTypes.any.isRequired,
+  footer: PropTypes.any.isRequired,
 }
 
 

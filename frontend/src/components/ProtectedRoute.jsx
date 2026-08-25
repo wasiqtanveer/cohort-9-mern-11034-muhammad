@@ -25,7 +25,7 @@ function ProtectedRoute(props)
 
 // props for expected route 
 ProtectedRoute.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.any.isRequired,
 }
 
 export default ProtectedRoute;
