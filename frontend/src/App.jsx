@@ -1,4 +1,5 @@
 import {Routes, Route, Navigate} from 'react-router-dom';
+import Trash from './pages/Trash';
 import {useState, useEffect, useCallback} from 'react';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -13,9 +14,10 @@ function App()
 {
   const [notes, setNotes] = useState([])
   const [notesError, setNotesError] = useState('')
+  const [notesLoading, setNotesLoading] = useState(true)
   const {user} = useAuth()
 
-  //useCallback so this function has a stable identity, safe to put in a dependency array
+  
   const refreshNotes = useCallback(() => {
     if (!user) return;
     api.get("/notes")
@@ -23,10 +25,12 @@ function App()
         setNotes(res.data.notes);
         setNotesError('');
       })
-      .catch(() => {
-        //without this a failed fetch just looks like you have no notes
+       .catch(() => {
         setNotes([]);
         setNotesError('Could not load your notes. Check your connection and try again.');
+      })
+      .finally(() => {
+        setNotesLoading(false);
       });
   }, [user]);
 
@@ -40,9 +44,12 @@ function App()
       <Route path='/' element={<Navigate to='/login' replace />}/>
       <Route path='/login' element={<Login />}/>
       <Route path='/signup' element={<Signup />}/>
+      <Route path='/trash' element={<ProtectedRoute>
+        <Trash/>
+      </ProtectedRoute>}/>
 
       <Route path='/dashboard' element={<ProtectedRoute>
-        <Dashboard notes={notes} refreshNotes={refreshNotes} notesError={notesError}/>
+        <Dashboard notes={notes} refreshNotes={refreshNotes} notesError={notesError} notesLoading={notesLoading}/>
       </ProtectedRoute>}/>
 
       <Route path='/editor/:id' element={<ProtectedRoute>
