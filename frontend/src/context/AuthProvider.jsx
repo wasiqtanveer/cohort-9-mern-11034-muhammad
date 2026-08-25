@@ -1,5 +1,5 @@
-import {useState, useEffect} from 'react';
-import { rollSessionTheme,clearSessionTheme } from '../Theme/sessionTheme.js';
+import {useState, useEffect, useCallback, useMemo} from 'react';
+import { rollSessionTheme,clearSessionTheme } from '../theme/sessionTheme.js';
 import { AuthContext } from './Auth-context.js'
 import api from '../api/client.js';
 
@@ -31,41 +31,45 @@ export function AuthProvider({children})
             });
     }, []);
 
-    async function login(email, password)
-    {
+    
+    const login = useCallback(async (email, password) => {
         const res = await api.post("/auth/login", {email, password});
         localStorage.setItem("token", res.data.token);
         rollSessionTheme();
         setUser(res.data.user);
-    }
+    }, [])
 
-    async function signup(name, email, password)
-    {
+    const signup = useCallback(async (name, email, password) => {
         await api.post("/auth/register", {name, email, password});
 
-        
         try {
             await login(email, password);
         } catch {
             const err = new Error("Your account was created but signing in failed. Try logging in.");
-            
+
             err.response = {data: {message: "Your account was created but signing in failed. Try logging in."}};
             throw err;
         }
-    }
+    }, [login])
 
-    function logout()
-    {
+    const logout = useCallback(() => {
         localStorage.removeItem("token");
-    clearSessionTheme();
+        clearSessionTheme();
         setUser(null)
-    }
+    }, [])
 
-    return(
-        <AuthContext.Provider value={{user, loading, login, signup, logout}}>
+    const value = useMemo(
+        () => ({user, loading, login, signup, logout}),
+        [user, loading, login, signup, logout]
+    )
+
+
+       return(
+        <AuthContext.Provider value={value}>
 
             {children}
 
         </AuthContext.Provider>
     )
+
 }

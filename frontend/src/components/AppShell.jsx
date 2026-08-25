@@ -2,8 +2,16 @@ import PropTypes from "prop-types";
 import {Link, useLocation} from 'react-router-dom';
 import {useAuth} from '../context/Auth-context.js';
 import {Plus, User, LogOut, Trash2, StickyNote} from 'lucide-react';
-import { getCanvasClass } from "../Theme/sessionTheme.js";
+import { getCanvasClass } from "../theme/sessionTheme.js";
 import { validateProps } from "../utils/validateProps";
+
+function navClass(active)
+{
+    return `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+        active ? 'bg-black/5 text-ink' : 'text-ink/60 hover:bg-black/5 hover:text-ink'
+    }`
+}
+
 
 //rail and page frame shared by the dashboard and the trash
 function AppShell(props)
@@ -15,13 +23,6 @@ function AppShell(props)
     const {logout} = useAuth()
     const {pathname} = useLocation()
 
-    
-    function navClass(active)
-    {
-        return `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-            active ? 'bg-black/5 text-ink' : 'text-ink/60 hover:bg-black/5 hover:text-ink'
-        }`
-    }
 
     return (
     <div className={`min-h-screen ${getCanvasClass(canvas)}`}>
@@ -57,7 +58,7 @@ function AppShell(props)
             <User size={17}/>
             Profile
           </Link>
-          <button onClick={logout} className={navClass(false)}>
+          <button type='button' onClick={logout} className={navClass(false)}>
             <LogOut size={17}/>
             Log out
           </button>
@@ -84,7 +85,7 @@ function AppShell(props)
           <Link to='/profile' aria-label='Profile' className='grid h-9 w-9 place-items-center rounded-lg text-ink/50 hover:text-ink'>
             <User size={18}/>
           </Link>
-          <button onClick={logout} aria-label='Log out' className='grid h-9 w-9 place-items-center rounded-lg text-ink/50 hover:text-ink'>
+          <button type='button' onClick={logout} aria-label='Log out' className='grid h-9 w-9 place-items-center rounded-lg text-ink/50 hover:text-ink'>
             <LogOut size={18}/>
           </button>
         </div>

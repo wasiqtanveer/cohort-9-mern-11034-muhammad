@@ -5,7 +5,7 @@ import DOMPurify from 'dompurify';
 import {Pencil, Trash2, Search, Pin, StickyNote, Copy} from 'lucide-react';
 import api from '../api/client.js';
 import AppShell from '../components/AppShell.jsx';
-import ConfirmDialog from '../components/confirmDialog.jsx';
+import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import { validateProps } from "../utils/validateProps";
 
 //full class strings, tailwind cant see something like bg-note-${n}
@@ -26,7 +26,7 @@ function getCardColor(id)
 //content is html, searching it raw would match tag names. a search for "p" would hit every note
 function toPlainText(html)
 {
-  return (html || '').replace(/<[^>]*>/g, ' ')
+  return new DOMParser().parseFromString(html || '', 'text/html').body.textContent || ''
 }
 
 //missing dates become 0 instead of NaN, NaN would make the sort comparator inconsistent
@@ -40,6 +40,12 @@ function formatDate(value)
 {
   if (!value) return ''
   return new Date(value).toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'})
+}
+
+function countLabel(visible, total, searching)
+{
+  if (searching) return `${visible} of ${total}`
+  return `${total} ${total === 1 ? 'note' : 'notes'}`
 }
 
 const sortOptions = [
@@ -189,9 +195,7 @@ function Dashboard(props)
 
             {notes.length > 0 && (
               <p className='pb-2 text-sm text-ink/50'>
-                {search.trim()
-                  ? `${visibleNotes.length} of ${notes.length}`
-                  : `${notes.length} ${notes.length === 1 ? 'note' : 'notes'}`}
+                {countLabel(visibleNotes.length, notes.length, Boolean(search.trim()))}
               </p>
             )}
           </div>
@@ -226,7 +230,7 @@ function Dashboard(props)
               <Search size={30} className='mx-auto mb-4 text-ink/25'/>
               <h2 className='font-semibold text-ink'>No matches</h2>
               <p className='mt-1 mb-6 text-sm text-ink/50'>Nothing matched &ldquo;{search.trim()}&rdquo;.</p>
-              <button onClick={()=> setSearch('')} className='text-sm font-semibold text-ink underline underline-offset-2 hover:no-underline'>
+              <button type='button' onClick={()=> setSearch('')} className='text-sm font-semibold text-ink underline underline-offset-2 hover:no-underline'>
                 Clear search
               </button>
             </div>
@@ -259,10 +263,10 @@ function Dashboard(props)
                   <span className='text-xs font-medium text-ink/50'>{formatDate(note.updated_at)}</span>
 
                   <div className='flex items-center gap-1.5'>
-                    <button aria-label='Duplicate note' onClick={()=> handleDuplicate(note)} className='grid h-8 w-8 place-items-center rounded-full text-ink/50 transition hover:bg-black/10 hover:text-ink'>
+                    <button type='button' aria-label='Duplicate note' onClick={()=> handleDuplicate(note)} className='grid h-8 w-8 place-items-center rounded-full text-ink/50 transition hover:bg-black/10 hover:text-ink'>
                       <Copy size={15}/>
                     </button>
-                    <button aria-label='Delete note' onClick={()=> setPendingDelete(note)} className='grid h-8 w-8 place-items-center rounded-full text-ink/50 transition hover:bg-black/10 hover:text-ink'>
+                    <button type='button' aria-label='Delete note' onClick={()=> setPendingDelete(note)} className='grid h-8 w-8 place-items-center rounded-full text-ink/50 transition hover:bg-black/10 hover:text-ink'>
                       <Trash2 size={15}/>
                     </button>
                     <Link aria-label='Edit note' to={`/editor/${note.id}`} className='grid h-8 w-8 place-items-center rounded-full bg-ink text-white transition hover:opacity-85'>

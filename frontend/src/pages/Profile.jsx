@@ -1,7 +1,7 @@
 import {Link} from 'react-router-dom';
 import {useAuth} from '../context/Auth-context.js';
 import {ArrowLeft, LogOut} from 'lucide-react';
-import {getCanvasClass} from '../Theme/sessionTheme.js';
+import {getCanvasClass} from '../theme/sessionTheme.js';
 
 function Profile()
 {
@@ -45,6 +45,7 @@ function Profile()
               </dl>
 
               <button
+                type='button'
                 onClick={logout}
                 className='mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-ink py-3.5 text-sm font-semibold text-white transition hover:opacity-90 active:scale-[0.99]'
               >

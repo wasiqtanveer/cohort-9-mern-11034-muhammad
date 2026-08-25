@@ -4,7 +4,7 @@ import DOMPurify from 'dompurify';
 import {Trash2, RotateCcw} from 'lucide-react';
 import api from '../api/client.js';
 import AppShell from '../components/AppShell.jsx';
-import ConfirmDialog from '../components/confirmDialog.jsx';
+import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import { validateProps } from "../utils/validateProps";
 
 const RETENTION_DAYS = 7
@@ -118,10 +118,10 @@ function Trash(props)
               </span>
 
               <div className='flex items-center gap-1.5'>
-                <button aria-label='Delete permanently' onClick={()=> setPendingDelete(note)} className='grid h-8 w-8 place-items-center rounded-full text-ink/50 transition hover:bg-red-50 hover:text-red-600'>
+                <button type='button' aria-label='Delete permanently' onClick={()=> setPendingDelete(note)} className='grid h-8 w-8 place-items-center rounded-full text-ink/50 transition hover:bg-red-50 hover:text-red-600'>
                   <Trash2 size={15}/>
                 </button>
-                <button aria-label='Restore note' onClick={()=> handleRestore(note)} className='grid h-8 w-8 place-items-center rounded-full bg-ink text-white transition hover:opacity-85'>
+                <button type='button' aria-label='Restore note' onClick={()=> handleRestore(note)} className='grid h-8 w-8 place-items-center rounded-full bg-ink text-white transition hover:opacity-85'>
                   <RotateCcw size={14}/>
                 </button>
               </div>

@@ -49,13 +49,23 @@ function isValidIndex(value)
 
 
 
+
+function randomIndex(max)
+{
+  const buf = new Uint32Array(1)
+  crypto.getRandomValues(buf)
+  return buf[0] % max
+}
+
+
 function pickPair()
 {
-  const a = Math.floor(Math.random() * canvasClasses.length)
-  let b = Math.floor(Math.random() * (canvasClasses.length - 1))
+  const a = randomIndex(canvasClasses.length)
+  let b = randomIndex(canvasClasses.length - 1)
   if (b >= a) b += 1
   return {dashboard: a, profile: b}
 }
+
 
 
 //called on login and signup so every session gets a new pair

@@ -5,8 +5,8 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import {ArrowLeft} from 'lucide-react';
 import api from '../api/client.js';
-import ConfirmDialog from '../components/confirmDialog.jsx';
-import { getCanvasClass } from '../Theme/sessionTheme.js';
+import ConfirmDialog from '../components/ConfirmDialog.jsx';
+import { getCanvasClass } from '../theme/sessionTheme.js';
 import { validateProps } from "../utils/validateProps";
 
 //module level, a new object every render makes quill rebuild its toolbar as you type
