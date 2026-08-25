@@ -1,8 +1,14 @@
+import PropTypes from "prop-types";
 import {Navigate} from 'react-router-dom';
 import {useAuth} from '../context/Auth-context.js';
+import { validateProps } from "../utils/validateProps";
 
-function ProtectedRoute({children})
+function ProtectedRoute(props)
 {
+    validateProps(ProtectedRoute.propTypes, props, 'ProtectedRoute');
+
+    const {children} = props
+
     const {user, loading} = useAuth()
 
     if (loading) {
@@ -14,6 +20,12 @@ function ProtectedRoute({children})
         return <Navigate to='/login' replace/>
     }
     return children;
+}
+
+
+// props for expected route 
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
 }
 
 export default ProtectedRoute;
