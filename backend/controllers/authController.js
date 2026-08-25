@@ -4,9 +4,13 @@ const jwt = require("jsonwebtoken");
 
 async function register(req,res)
 {
-    const{name,password} = req.body
+//type error come back as 500 instad of 400
+    const body = req.body ?? {};
+
+    const{name,password} = body
+
     //lowercase the email so User@test.com and user@test.com cant become two accounts
-    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : req.body.email
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : body.email
 
     if(!name || !email || !password)
     {
@@ -41,15 +45,20 @@ async function register(req,res)
 
     )
 
+
+    //userId only, no email. the http log already carries the request id and ip for correlation, so no need to log the email and risk it being stored in a log file
+    req.log.info({event: "user_registered", userId: result.rows[0].id}, "new user registered");
     res.status(201).json({user: result.rows[0]})
 
 }
 
 async function login(req,res)
 {
+
+    const body = req.body ?? {};
     //same lowercasing as register or the lookup wont match what we stored
-    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : req.body.email;
-    const password = req.body.password;
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : body.email;
+    const password = body.password;
 
     
     if(!email || !password)
@@ -68,6 +77,7 @@ async function login(req,res)
 
     if (!user) 
     {
+        req.log.warn({event: "login_failed", reason: "unknown_email"}, "failed login attempt");
         const err = new Error("Invalid email or password");
         err.status = 401;
         throw err;
@@ -78,6 +88,9 @@ async function login(req,res)
 
     if (!isMatch) 
         {
+            
+            req.log.warn({event: "login_failed", reason: "wrong_password", userId: user.id}, "failed login attempt");
+
             const err = new Error("Invalid email or password");
             err.status = 401;
             throw err;
@@ -89,6 +102,9 @@ async function login(req,res)
         {id: user.id},process.env.JWT_SECRET,
         {expiresIn:process.env.JWT_EXPIRES_IN,}
     )
+
+        //the token itself is never logged, only that one was issued
+    req.log.info({event: "user_logged_in", userId: user.id}, "user logged in");
 
     //sending safe use fields and never password hash
 

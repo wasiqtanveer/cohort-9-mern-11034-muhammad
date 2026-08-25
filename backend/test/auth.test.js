@@ -49,6 +49,21 @@ describe("Auth API", function()
             expect(res.status).to.equal(400);
         });
 
+
+        it("rejects a register request with no body with 400", async function () {
+            //express 5 leaves req.body undefined rather than {}, which turned a
+            //body-less request into a 500 before the controller guarded it
+            const res = await request(app).post("/api/auth/register");
+
+            expect(res.status).to.equal(400);
+        });
+
+        it("rejects a login request with no body with 400", async function () {
+            const res = await request(app).post("/api/auth/login");
+
+            expect(res.status).to.equal(400);
+        });
+
         
         it("rejects a duplicate email with 409", async function () {
             await request(app)
