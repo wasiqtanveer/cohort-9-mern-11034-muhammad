@@ -18,7 +18,8 @@ export function AuthProvider({children})
 
         api.get("/auth/me")
             .then((res) => {
-                
+                //if someone logged in or out while this was still in flight, dont overwrite the newer session
+                if (localStorage.getItem("token") !== token) return;
                 setUser(res.data.user);
             })
             .catch(() => {

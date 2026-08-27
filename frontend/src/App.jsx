@@ -12,21 +12,22 @@ import api from './api/client.js';
 
 function App()
 {
-  const [notes, setNotes] = useState([])
+  const [notesState, setNotesState] = useState({userId: null, notes: []})
   const [notesError, setNotesError] = useState('')
   const [notesLoading, setNotesLoading] = useState(true)
   const {user} = useAuth()
 
-  
+
   const refreshNotes = useCallback(() => {
     if (!user) return;
+
     api.get("/notes")
       .then((res) => {
-        setNotes(res.data.notes);
+        setNotesState({userId: user.id, notes: res.data.notes});
         setNotesError('');
       })
        .catch(() => {
-        setNotes([]);
+        setNotesState({userId: user.id, notes: []});
         setNotesError('Could not load your notes. Check your connection and try again.');
       })
       .finally(() => {
@@ -38,6 +39,8 @@ function App()
   useEffect(() => {
     refreshNotes();
   }, [refreshNotes]);
+
+  const notes = notesState.userId === user?.id ? notesState.notes : []
 
   return(
     <Routes>

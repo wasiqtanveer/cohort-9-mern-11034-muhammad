@@ -218,6 +218,7 @@ function NoteEditorForm(props)
             <button
                 type='button'
                 onClick={attemptLeave}
+                disabled={saving}
                 className='mb-6 inline-flex items-center gap-2 text-sm font-medium text-ink/60 transition hover:text-ink'
             >
                 <ArrowLeft size={16}/>
@@ -270,7 +271,8 @@ function NoteEditorForm(props)
                     <button
                         type='button'
                         onClick={attemptLeave}
-                        className='flex-1 rounded-xl bg-gray-100 py-3.5 text-sm font-semibold text-ink transition hover:bg-gray-200 sm:flex-none sm:px-8'
+                        disabled={saving}
+                        className='flex-1 rounded-xl bg-gray-100 py-3.5 text-sm font-semibold text-ink transition hover:bg-gray-200 disabled:opacity-40 sm:flex-none sm:px-8'
                     >
                         Cancel
                     </button>

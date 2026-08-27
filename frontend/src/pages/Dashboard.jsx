@@ -73,6 +73,7 @@ function Dashboard(props)
   const [searchIn, setSearchIn] = useState('both')
   const [sortBy, setSortBy] = useState('updated')
   const [pendingDelete, setPendingDelete] = useState(null)
+  const [duplicating, setDuplicating] = useState(null)
 
   //only recalculated when the notes, term, search field or sort actually change
   const visibleNotes = useMemo(() => {
@@ -120,7 +121,10 @@ function Dashboard(props)
 
   async function handleDuplicate(note)
   {
+    if (duplicating) return;
+
     setError('');
+    setDuplicating(note.id);
     try {
       //title is varchar(200) and the api rejects longer, hence the slice
       const title = `Copy of ${note.title}`.slice(0, 200);
@@ -128,6 +132,8 @@ function Dashboard(props)
       refreshNotes();
     } catch (err) {
       setError(err.response?.data?.message || 'Could not duplicate that note, try again');
+    } finally {
+      setDuplicating(null);
     }
   }
 
@@ -263,7 +269,7 @@ function Dashboard(props)
                   <span className='text-xs font-medium text-ink/50'>{formatDate(note.updated_at)}</span>
 
                   <div className='flex items-center gap-1.5'>
-                    <button type='button' aria-label='Duplicate note' onClick={()=> handleDuplicate(note)} className='grid h-8 w-8 place-items-center rounded-full text-ink/50 transition hover:bg-black/10 hover:text-ink'>
+                    <button type='button' aria-label='Duplicate note' disabled={duplicating === note.id} onClick={()=> handleDuplicate(note)} className='grid h-8 w-8 place-items-center rounded-full text-ink/50 transition hover:bg-black/10 hover:text-ink disabled:opacity-40'>
                       <Copy size={15}/>
                     </button>
                     <button type='button' aria-label='Delete note' onClick={()=> setPendingDelete(note)} className='grid h-8 w-8 place-items-center rounded-full text-ink/50 transition hover:bg-black/10 hover:text-ink'>

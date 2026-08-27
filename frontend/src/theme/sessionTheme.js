@@ -68,10 +68,14 @@ function pickPair()
 
 
 
+let fallbackPair = null
+
+
 //called on login and signup so every session gets a new pair
 export function rollSessionTheme()
 {
   const pair = pickPair()
+  fallbackPair = pair
   writeStored(JSON.stringify(pair))
   return pair
 }
@@ -87,7 +91,7 @@ export function clearSessionTheme()
 function readPair()
 {
   const raw = readStored()
-  if (!raw) return rollSessionTheme()
+  if (!raw) return fallbackPair ?? rollSessionTheme()
 
   try {
     const pair = JSON.parse(raw)
