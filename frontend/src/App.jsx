@@ -45,7 +45,7 @@ function App()
       <Route path='/login' element={<Login />}/>
       <Route path='/signup' element={<Signup />}/>
       <Route path='/trash' element={<ProtectedRoute>
-        <Trash/>
+        <Trash refreshNotes={refreshNotes}/>
       </ProtectedRoute>}/>
 
       <Route path='/dashboard' element={<ProtectedRoute>
