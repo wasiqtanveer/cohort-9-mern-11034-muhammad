@@ -5,7 +5,7 @@ async function protect(req, res, next) {
   const authHeader = req.headers.authorization;
 
   //Expect "Authorization: Bearer <token>"
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!authHeader?.startsWith("Bearer ")) {
     const err = new Error("Not authorized, no token provided");
     err.status = 401;
     throw err;
