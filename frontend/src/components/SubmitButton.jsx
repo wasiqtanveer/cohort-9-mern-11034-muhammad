@@ -3,7 +3,7 @@ import {validateProps} from '../utils/validateProps.js';
 
 function SubmitButton(props)
 {
-    validateProps(SubmitButton.PropTypes, props, 'SubmitButton')
+    validateProps(SubmitButton.propTypes, props, 'SubmitButton')
 
     const {submitting, idleLabel, busyLabel} = props
 
