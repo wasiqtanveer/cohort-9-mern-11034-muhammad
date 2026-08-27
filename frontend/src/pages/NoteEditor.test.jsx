@@ -56,7 +56,7 @@ test('shows "Note not found" for an id the backend rejects', async () => {
 
   renderEditor('/editor/999')
 
-  await waitFor(() => expect(screen.getByText('Note not found')).toBeInTheDocument())
+  expect(await screen.findByText('Note not found')).toBeInTheDocument()
 })
 
 test('shows a connection error instead of "Note not found" when the request fails', async () => {
@@ -65,7 +65,7 @@ test('shows a connection error instead of "Note not found" when the request fail
 
   renderEditor('/editor/1')
 
-  await waitFor(() => expect(screen.getByText('Could not load this note, try again')).toBeInTheDocument())
+  expect(await screen.findByText('Could not load this note, try again')).toBeInTheDocument()
   expect(screen.queryByText('Note not found')).not.toBeInTheDocument()
 })
 
