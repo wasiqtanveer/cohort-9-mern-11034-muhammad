@@ -1,4 +1,5 @@
 import {Routes, Route, Navigate} from 'react-router-dom';
+import Trash from './pages/Trash';
 import {useState, useEffect, useCallback} from 'react';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -11,22 +12,26 @@ import api from './api/client.js';
 
 function App()
 {
-  const [notes, setNotes] = useState([])
+  const [notesState, setNotesState] = useState({userId: null, notes: []})
   const [notesError, setNotesError] = useState('')
+  const [notesLoading, setNotesLoading] = useState(true)
   const {user} = useAuth()
 
-  //useCallback so this function has a stable identity, safe to put in a dependency array
+
   const refreshNotes = useCallback(() => {
     if (!user) return;
+
     api.get("/notes")
       .then((res) => {
-        setNotes(res.data.notes);
+        setNotesState({userId: user.id, notes: res.data.notes});
         setNotesError('');
       })
-      .catch(() => {
-        //without this a failed fetch just looks like you have no notes
-        setNotes([]);
+       .catch(() => {
+        setNotesState({userId: user.id, notes: []});
         setNotesError('Could not load your notes. Check your connection and try again.');
+      })
+      .finally(() => {
+        setNotesLoading(false);
       });
   }, [user]);
 
@@ -35,14 +40,19 @@ function App()
     refreshNotes();
   }, [refreshNotes]);
 
+  const notes = notesState.userId === user?.id ? notesState.notes : []
+
   return(
     <Routes>
       <Route path='/' element={<Navigate to='/login' replace />}/>
       <Route path='/login' element={<Login />}/>
       <Route path='/signup' element={<Signup />}/>
+      <Route path='/trash' element={<ProtectedRoute>
+        <Trash refreshNotes={refreshNotes}/>
+      </ProtectedRoute>}/>
 
       <Route path='/dashboard' element={<ProtectedRoute>
-        <Dashboard notes={notes} refreshNotes={refreshNotes} notesError={notesError}/>
+        <Dashboard notes={notes} refreshNotes={refreshNotes} notesError={notesError} notesLoading={notesLoading}/>
       </ProtectedRoute>}/>
 
       <Route path='/editor/:id' element={<ProtectedRoute>

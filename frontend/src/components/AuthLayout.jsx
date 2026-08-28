@@ -49,5 +49,4 @@ AuthLayout.propTypes = {
   footer: PropTypes.any.isRequired,
 }
 
-
 export default AuthLayout;

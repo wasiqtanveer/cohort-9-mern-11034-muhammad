@@ -1,4 +1,5 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useCallback, useMemo} from 'react';
+import { rollSessionTheme,clearSessionTheme } from '../theme/sessionTheme.js';
 import { AuthContext } from './Auth-context.js'
 import api from '../api/client.js';
 
@@ -17,12 +18,12 @@ export function AuthProvider({children})
 
         api.get("/auth/me")
             .then((res) => {
-                //if someone logged in while this was still in flight, dont overwrite the newer session
+                //if someone logged in or out while this was still in flight, dont overwrite the newer session
                 if (localStorage.getItem("token") !== token) return;
                 setUser(res.data.user);
             })
             .catch(() => {
-                //token expired or invalid, throw it away, but only if its still the one we checked
+                
                 if (localStorage.getItem("token") !== token) return;
                 localStorage.removeItem("token");
             })
@@ -31,31 +32,45 @@ export function AuthProvider({children})
             });
     }, []);
 
-    async function login(email, password)
-    {
+    
+    const login = useCallback(async (email, password) => {
         const res = await api.post("/auth/login", {email, password});
         localStorage.setItem("token", res.data.token);
+        rollSessionTheme();
         setUser(res.data.user);
-    }
+    }, [])
 
-    async function signup(name, email, password)
-    {
+    const signup = useCallback(async (name, email, password) => {
         await api.post("/auth/register", {name, email, password});
-        //register doesnt return a token so log in right after
-        await login(email, password);
-    }
 
-    function logout()
-    {
+        try {
+            await login(email, password);
+        } catch {
+            const err = new Error("Your account was created but signing in failed. Try logging in.");
+
+            err.response = {data: {message: "Your account was created but signing in failed. Try logging in."}};
+            throw err;
+        }
+    }, [login])
+
+    const logout = useCallback(() => {
         localStorage.removeItem("token");
+        clearSessionTheme();
         setUser(null)
-    }
+    }, [])
 
-    return(
-        <AuthContext.Provider value={{user, loading, login, signup, logout}}>
+    const value = useMemo(
+        () => ({user, loading, login, signup, logout}),
+        [user, loading, login, signup, logout]
+    )
+
+
+       return(
+        <AuthContext.Provider value={value}>
 
             {children}
 
         </AuthContext.Provider>
     )
+
 }
