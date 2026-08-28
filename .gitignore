@@ -1,0 +1,10 @@
+node_modules/
+
+# coverage output from nyc (backend) and jest (frontend)
+coverage/
+.nyc_output/
+
+# sonar scanner working directory
+.scannerwork/
+
+.env

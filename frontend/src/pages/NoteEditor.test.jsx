@@ -3,6 +3,7 @@ import {MemoryRouter,Route,Routes} from 'react-router-dom';
 import NoteEditor from './NoteEditor.jsx';
 import api from '../api/client.js';
 
+
 jest.mock('../api/client.js');
 
 //swap the real quill for a plain textarea, it takes value and calls onChange the same way
@@ -55,7 +56,7 @@ test('shows "Note not found" for an id the backend rejects', async () => {
 
   renderEditor('/editor/999')
 
-  await waitFor(() => expect(screen.getByText('Note not found')).toBeInTheDocument())
+  expect(await screen.findByText('Note not found')).toBeInTheDocument()
 })
 
 test('shows a connection error instead of "Note not found" when the request fails', async () => {
@@ -64,9 +65,55 @@ test('shows a connection error instead of "Note not found" when the request fail
 
   renderEditor('/editor/1')
 
-  await waitFor(() => expect(screen.getByText('Could not load this note, try again')).toBeInTheDocument())
+  expect(await screen.findByText('Could not load this note, try again')).toBeInTheDocument()
   expect(screen.queryByText('Note not found')).not.toBeInTheDocument()
 })
+
+
+test('saving a new note posts it and goes back to the dashboard', async () => {
+  api.post.mockResolvedValue({});
+
+  renderEditor('/editor')
+
+  fireEvent.change(screen.getByLabelText('Title'), {target:{value:'My note'}})
+  fireEvent.change(screen.getByTestId('content-editor'), {target:{value:'<p>hi</p>'}})
+  fireEvent.click(screen.getByRole('button', {name:'Save'}))
+
+  await waitFor(()=> expect(api.post).toHaveBeenCalledWith('/notes', {title:'My note', content:'<p>hi</p>'}))
+  expect(await screen.findByText('Dashboard Page')).toBeInTheDocument()
+})
+
+
+test('saving an existing note puts instead of posting', async () => {
+  api.get.mockResolvedValue({data:{note:{id:1, title:'First Note', content:'<p>Hello</p>'}}});
+  api.put.mockResolvedValue({});
+
+  renderEditor('/editor/1')
+
+  await waitFor(()=> expect(screen.getByLabelText('Title')).toHaveValue('First Note'))
+
+  fireEvent.change(screen.getByLabelText('Title'), {target:{value:'Renamed'}})
+  fireEvent.click(screen.getByRole('button', {name:'Save'}))
+
+  await waitFor(()=> expect(api.put).toHaveBeenCalledWith('/notes/1', {title:'Renamed', content:'<p>Hello</p>'}))
+  expect(api.post).not.toHaveBeenCalled()
+})
+
+
+test('keeps what you typed on the page when saving fails', async () => {
+  api.post.mockRejectedValue({response:{data:{message:'Title is required'}}});
+
+  renderEditor('/editor')
+
+  fireEvent.change(screen.getByLabelText('Title'), {target:{value:'My note'}})
+  fireEvent.click(screen.getByRole('button', {name:'Save'}))
+
+  expect(await screen.findByRole('alert')).toHaveTextContent('Title is required')
+  //losing the typed text on a failed save would be the worst possible outcome
+  expect(screen.getByLabelText('Title')).toHaveValue('My note')
+  expect(screen.queryByText('Dashboard Page')).not.toBeInTheDocument()
+})
+
 
 test('leaving with unsaved changes asks before discarding', async () => {
   renderEditor('/editor')
@@ -77,6 +124,7 @@ test('leaving with unsaved changes asks before discarding', async () => {
   expect(await screen.findByText('Discard changes?')).toBeInTheDocument()
 })
 
+
 test('leaving with nothing typed goes straight back', async () => {
   renderEditor('/editor')
 
@@ -85,6 +133,7 @@ test('leaving with nothing typed goes straight back', async () => {
   expect(await screen.findByText('Dashboard Page')).toBeInTheDocument()
   expect(screen.queryByText('Discard changes?')).not.toBeInTheDocument()
 })
+
 
 test('confirming the discard leaves the editor', async () => {
   renderEditor('/editor')
@@ -95,6 +144,7 @@ test('confirming the discard leaves the editor', async () => {
 
   expect(await screen.findByText('Dashboard Page')).toBeInTheDocument()
 })
+
 
 test('cancelling the discard keeps what was typed', async () => {
   renderEditor('/editor')
@@ -108,6 +158,27 @@ test('cancelling the discard keeps what was typed', async () => {
   expect(screen.queryByText('Discard changes?')).not.toBeInTheDocument()
   expect(screen.getByLabelText('Title')).toHaveValue('Half written')
 })
+
+
+test('cancel leaves straight away when nothing was typed', () => {
+  renderEditor('/editor')
+
+  fireEvent.click(screen.getByRole('button', {name:'Cancel'}))
+
+  expect(screen.getByText('Dashboard Page')).toBeInTheDocument()
+})
+
+
+test('cancel asks first when there are unsaved changes', () => {
+  renderEditor('/editor')
+
+  fireEvent.change(screen.getByLabelText('Title'), {target:{value:'half written'}})
+  fireEvent.click(screen.getByRole('button', {name:'Cancel'}))
+
+  expect(screen.getByText('Discard changes?')).toBeInTheDocument()
+  expect(screen.queryByText('Dashboard Page')).not.toBeInTheDocument()
+})
+
 
 test('ctrl+s saves without touching the save button', async () => {
   api.post.mockResolvedValue({});
