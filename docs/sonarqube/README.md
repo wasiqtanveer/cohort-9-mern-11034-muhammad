@@ -15,8 +15,8 @@ Coverage reports are generated first, because SonarQube does not run the tests i
 it only reads the lcov files:
 
 ```bash
-cd backend  && npm run test:coverage
-cd frontend && npm run test:coverage
+(cd backend && npm run test:coverage)
+(cd frontend && npm run test:coverage)
 ```
 
 Then the scan, from the repo root:

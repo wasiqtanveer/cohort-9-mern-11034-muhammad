@@ -29,11 +29,13 @@ test('rerolls when the saved value is not valid json', ()=>
     const originalWarn = console.warn
     console.warn = () => {}
 
-    localStorage.setItem('sessionTheme', 'not json at all')
+    try {
+        localStorage.setItem('sessionTheme', 'not json at all')
 
-    expect(getCanvasClass('dashboard')).toMatch(/^bg-canvas-[1-6]$/)
-
-    console.warn = originalWarn
+        expect(getCanvasClass('dashboard')).toMatch(/^bg-canvas-[1-6]$/)
+    } finally {
+        console.warn = originalWarn
+    }
 })
 
 test('rerolls when the saved indexes are out of range', ()=>
@@ -43,6 +45,14 @@ test('rerolls when the saved indexes are out of range', ()=>
 
     expect(getCanvasClass('dashboard')).toMatch(/^bg-canvas-[1-6]$/)
     expect(getCanvasClass('profile')).toMatch(/^bg-canvas-[1-6]$/)
+
+    
+    const saved = JSON.parse(localStorage.getItem('sessionTheme'))
+    expect(saved.dashboard).toBeGreaterThanOrEqual(0)
+    expect(saved.dashboard).toBeLessThan(6)
+    expect(saved.profile).toBeGreaterThanOrEqual(0)
+    expect(saved.profile).toBeLessThan(6)
+    expect(saved.dashboard).not.toEqual(saved.profile)
 })
 
 test('clear removes the saved pair', ()=>
